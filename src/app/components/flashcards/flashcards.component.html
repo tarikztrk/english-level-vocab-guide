@@ -26,8 +26,8 @@
               <div class="absolute inset-0 rounded-[2rem] bg-primary text-white p-10 text-center shadow-lg backface-hidden rotate-y-180 flex flex-col justify-center items-center">
                 <p class="text-sm uppercase tracking-[0.2em] text-primary/90">Back</p>
                 <p class="mt-4 text-xl font-semibold">{{ currentCard.back }}</p>
-                <p class="mt-4 text-sm leading-6">Example sentence here for better recall.</p>
-                <button class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container-low">
+                <p class="mt-4 text-sm leading-6">{{ currentCard.example }}</p>
+                <button (click)="listenToPronunciation()" class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container-low">
                   <span class="material-symbols-outlined">volume_up</span>
                   Listen</button>
               </div>

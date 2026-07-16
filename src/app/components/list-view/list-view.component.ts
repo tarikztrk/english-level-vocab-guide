@@ -6,6 +6,7 @@ interface WordItem {
   meaning: string;
   category: string;
   learned: boolean;
+  bookmarked: boolean;
 }
 
 @Component({
@@ -22,13 +23,13 @@ export class ListViewComponent {
   sortOptions = ['A-Z', 'Learned', 'New'];
 
   vocabulary: WordItem[] = [
-    { word: 'Inherent', phonetic: '/ɪnˈhɪər.ənt/', meaning: 'Doğasında olan, kalıtımsal', category: 'Academic', learned: true },
-    { word: 'Negotiate', phonetic: '/nɪˈɡoʊ.ʃi.eɪt/', meaning: 'Görüşmek, pazarlık yapmak', category: 'Business', learned: false },
-    { word: 'Ambiguous', phonetic: '/æmˈbɪɡ.ju.əs/', meaning: 'Belirsiz, muğlak', category: 'Academic', learned: false },
-    { word: 'Everyday', phonetic: '/ˈɛv.ri.deɪ/', meaning: 'Günlük', category: 'Daily', learned: false },
-    { word: 'Evaluate', phonetic: '/ɪnˈvæl.ju.eɪt/', meaning: 'Değerlendirmek', category: 'Academic', learned: true },
-    { word: 'Collaborate', phonetic: '/kəˈlæb.ə.reɪt/', meaning: 'İşbirliği yapmak', category: 'Business', learned: false },
-    { word: 'Constraint', phonetic: '/kənˈstreɪnt/', meaning: 'Kısıtlama, zorlama', category: 'Academic', learned: false }
+    { word: 'Inherent', phonetic: '/ɪnˈhɪər.ənt/', meaning: 'Doğasında olan, kalıtımsal', category: 'Academic', learned: true, bookmarked: true },
+    { word: 'Negotiate', phonetic: '/nɪˈɡoʊ.ʃi.eɪt/', meaning: 'Görüşmek, pazarlık yapmak', category: 'Business', learned: false, bookmarked: false },
+    { word: 'Ambiguous', phonetic: '/æmˈbɪɡ.ju.əs/', meaning: 'Belirsiz, muğlak', category: 'Academic', learned: false, bookmarked: false },
+    { word: 'Everyday', phonetic: '/ˈɛv.ri.deɪ/', meaning: 'Günlük', category: 'Daily', learned: false, bookmarked: false },
+    { word: 'Evaluate', phonetic: '/ɪnˈvæl.ju.eɪt/', meaning: 'Değerlendirmek', category: 'Academic', learned: true, bookmarked: false },
+    { word: 'Collaborate', phonetic: '/kəˈlæb.ə.reɪt/', meaning: 'İşbirliği yapmak', category: 'Business', learned: false, bookmarked: true },
+    { word: 'Constraint', phonetic: '/kənˈstreɪnt/', meaning: 'Kısıtlama, zorlama', category: 'Academic', learned: false, bookmarked: false }
   ];
 
   get filteredWords() {
@@ -60,5 +61,9 @@ export class ListViewComponent {
 
   toggleLearned(word: WordItem) {
     word.learned = !word.learned;
+  }
+
+  toggleBookmark(word: WordItem) {
+    word.bookmarked = !word.bookmarked;
   }
 }

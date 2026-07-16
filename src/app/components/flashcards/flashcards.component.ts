@@ -5,6 +5,8 @@ interface Flashcard {
   back: string;
   category: string;
   pronunciation: string;
+  example: string;
+  audioUrl?: string;
 }
 
 @Component({
@@ -15,11 +17,11 @@ interface Flashcard {
 export class FlashcardsComponent {
   title = 'Flashcards';
   cards: Flashcard[] = [
-    { front: 'Inherent', back: 'Doğasında olan, kalıtımsal', category: 'Academic', pronunciation: '/ɪnˈhɪər.ənt/' },
-    { front: 'Negotiate', back: 'Görüşmek, pazarlık yapmak', category: 'Business', pronunciation: '/nɪˈɡoʊ.ʃi.eɪt/' },
-    { front: 'Ambiguous', back: 'Belirsiz, muğlak', category: 'Academic', pronunciation: '/æmˈbɪɡ.ju.əs/' },
-    { front: 'Everyday', back: 'Günlük', category: 'Daily', pronunciation: '/ˈɛv.ri.deɪ/' },
-    { front: 'Collaborate', back: 'İşbirliği yapmak', category: 'Business', pronunciation: '/kəˈlæb.ə.reɪt/' }
+    { front: 'Inherent', back: 'Doğasında olan, kalıtımsal', category: 'Academic', pronunciation: '/ɪnˈhɪər.ənt/', example: 'The risks inherent in the investment were carefully weighed.', audioUrl: '' },
+    { front: 'Negotiate', back: 'Görüşmek, pazarlık yapmak', category: 'Business', pronunciation: '/nɪˈɡoʊ.ʃi.eɪt/', example: 'They agreed to negotiate the contract terms next week.', audioUrl: '' },
+    { front: 'Ambiguous', back: 'Belirsiz, muğlak', category: 'Academic', pronunciation: '/æmˈbɪɡ.ju.əs/', example: 'His answer was deliberately ambiguous.', audioUrl: '' },
+    { front: 'Everyday', back: 'Günlük', category: 'Daily', pronunciation: '/ˈɛv.ri.deɪ/', example: 'I wear these shoes for everyday use.', audioUrl: '' },
+    { front: 'Collaborate', back: 'İşbirliği yapmak', category: 'Business', pronunciation: '/kəˈlæb.ə.reɪt/', example: 'They collaborate on several international projects.', audioUrl: '' }
   ];
   currentIndex = 0;
   isFlipped = false;
@@ -34,6 +36,11 @@ export class FlashcardsComponent {
 
   flipCard() {
     this.isFlipped = !this.isFlipped;
+  }
+
+  listenToPronunciation() {
+    // Placeholder for future audio playback integration.
+    console.log(`Listen to ${this.currentCard.front}: ${this.currentCard.pronunciation}`);
   }
 
   nextCard() {
