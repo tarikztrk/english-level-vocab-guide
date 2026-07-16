@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { VocabularyDataService } from '../../services/vocabulary-data.service';
 
 interface LevelTab {
   label: string;
@@ -6,6 +7,7 @@ interface LevelTab {
 }
 
 interface VocabularyItem {
+  id?: number;
   word: string;
   phonetic: string;
   meaning: string;
@@ -19,8 +21,10 @@ interface VocabularyItem {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   title = 'LexiLearn';
+
+  constructor(private vocabularyDataService: VocabularyDataService) {}
 
   tabs: LevelTab[] = [
     { label: 'A1', active: false },
@@ -47,13 +51,19 @@ export class DashboardComponent {
     { title: 'Practice Quiz', description: 'Test your recall instantly', icon: 'quiz' }
   ];
 
-  vocabularyItems: VocabularyItem[] = [
-    { word: 'Inherent', phonetic: '/ɪnˈhɪər.ənt/', meaning: 'Doğasında olan, kalıtımsal', level: 'B1', category: 'Academic', learned: false },
-    { word: 'Abstract', phonetic: '/ˈæb.strækt/', meaning: 'Soyut, özet', level: 'B1', category: 'Academic', learned: true },
-    { word: 'Negotiate', phonetic: '/nɪˈɡoʊ.ʃi.eɪt/', meaning: 'Görüşmek, pazarlık yapmak', level: 'B2', category: 'Business', learned: false },
-    { word: 'Everyday', phonetic: '/ˈɛv.ri.deɪ/', meaning: 'Günlük', level: 'A2', category: 'Daily', learned: false },
-    { word: 'Evaluate', phonetic: '/ɪˈvæl.ju.eɪt/', meaning: 'Değerlendirmek', level: 'B1', category: 'Academic', learned: false }
+  vocabularyItems: VocabularyItem[] = [];
+
+  private readonly fallbackVocabulary: VocabularyItem[] = [
+    { id: 1, word: 'Inherent', phonetic: '/ɪnˈhɪər.ənt/', meaning: 'Doğasında olan, kalıtımsal', level: 'B1', category: 'Academic', learned: false },
+    { id: 2, word: 'Abstract', phonetic: '/ˈæb.strækt/', meaning: 'Soyut, özet', level: 'B1', category: 'Academic', learned: true },
+    { id: 3, word: 'Negotiate', phonetic: '/nɪˈɡoʊ.ʃi.eɪt/', meaning: 'Görüşmek, pazarlık yapmak', level: 'B2', category: 'Business', learned: false },
+    { id: 4, word: 'Everyday', phonetic: '/ˈɛv.ri.deɪ/', meaning: 'Günlük', level: 'A2', category: 'Daily', learned: false },
+    { id: 5, word: 'Evaluate', phonetic: '/ɪˈvæl.ju.eɪt/', meaning: 'Değerlendirmek', level: 'B1', category: 'Academic', learned: false }
   ];
+
+  ngOnInit() {
+    void this.loadVocabulary();
+  }
 
   get filteredVocabulary() {
     return this.vocabularyItems.filter((item) => {
@@ -73,5 +83,31 @@ export class DashboardComponent {
 
   toggleLearned(item: VocabularyItem) {
     item.learned = !item.learned;
+
+    if (item.id) {
+      void this.vocabularyDataService.saveProgress(item.id, { learned: item.learned }).catch((error) => {
+        console.error('Could not save vocabulary progress', error);
+      });
+    }
+  }
+
+  private async loadVocabulary() {
+    try {
+      const data = await this.vocabularyDataService.getWords();
+      this.vocabularyItems = Array.isArray(data) && data.length > 0
+        ? data.map((item: any, index: number) => ({
+            id: item.id ?? index + 1,
+            word: item.word ?? '',
+            phonetic: item.phonetic ?? '',
+            meaning: item.meaning ?? '',
+            level: item.level ?? 'B1',
+            category: item.category ?? 'Academic',
+            learned: Boolean(item.learned)
+          }))
+        : this.fallbackVocabulary;
+    } catch (error) {
+      console.error('Could not load vocabulary from Supabase. Falling back to sample data.', error);
+      this.vocabularyItems = this.fallbackVocabulary;
+    }
   }
 }

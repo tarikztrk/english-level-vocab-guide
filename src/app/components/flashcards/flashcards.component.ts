@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { VocabularyDataService } from '../../services/vocabulary-data.service';
 
 interface Flashcard {
   front: string;
@@ -14,9 +15,13 @@ interface Flashcard {
   templateUrl: './flashcards.component.html',
   styleUrls: ['./flashcards.component.css']
 })
-export class FlashcardsComponent {
+export class FlashcardsComponent implements OnInit {
   title = 'Flashcards';
-  cards: Flashcard[] = [
+  cards: Flashcard[] = [];
+
+  constructor(private vocabularyDataService: VocabularyDataService) {}
+
+  private readonly fallbackCards: Flashcard[] = [
     { front: 'Inherent', back: 'Doğasında olan, kalıtımsal', category: 'Academic', pronunciation: '/ɪnˈhɪər.ənt/', example: 'The risks inherent in the investment were carefully weighed.', audioUrl: '' },
     { front: 'Negotiate', back: 'Görüşmek, pazarlık yapmak', category: 'Business', pronunciation: '/nɪˈɡoʊ.ʃi.eɪt/', example: 'They agreed to negotiate the contract terms next week.', audioUrl: '' },
     { front: 'Ambiguous', back: 'Belirsiz, muğlak', category: 'Academic', pronunciation: '/æmˈbɪɡ.ju.əs/', example: 'His answer was deliberately ambiguous.', audioUrl: '' },
@@ -25,6 +30,10 @@ export class FlashcardsComponent {
   ];
   currentIndex = 0;
   isFlipped = false;
+
+  ngOnInit() {
+    void this.loadCards();
+  }
 
   get currentCard() {
     return this.cards[this.currentIndex];
@@ -56,5 +65,24 @@ export class FlashcardsComponent {
   goToCard(index: number) {
     this.currentIndex = index;
     this.isFlipped = false;
+  }
+
+  private async loadCards() {
+    try {
+      const data = await this.vocabularyDataService.getWords();
+      this.cards = Array.isArray(data) && data.length > 0
+        ? data.map((item: any) => ({
+            front: item.word ?? '',
+            back: item.meaning ?? '',
+            category: item.category ?? 'Academic',
+            pronunciation: item.phonetic ?? '',
+            example: item.example ?? `Example for ${item.word ?? 'this word'}`,
+            audioUrl: item.audioUrl ?? ''
+          }))
+        : this.fallbackCards;
+    } catch (error) {
+      console.error('Could not load flashcards from Supabase. Falling back to sample data.', error);
+      this.cards = this.fallbackCards;
+    }
   }
 }

@@ -8,11 +8,12 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ListViewComponent } from './components/list-view/list-view.component';
 import { FlashcardsComponent } from './components/flashcards/flashcards.component';
 import { AppRoutingModule } from './app-routing.module';
+import { SupabaseService } from './services/supabase.service';
 
 @NgModule({
   declarations: [AppComponent, DashboardComponent, ListViewComponent, FlashcardsComponent],
   imports: [BrowserModule, CommonModule, FormsModule, AppRoutingModule],
-  providers: [],
+  providers: [SupabaseService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
