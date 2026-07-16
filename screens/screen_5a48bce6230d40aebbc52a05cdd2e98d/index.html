@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "primary-container": "#1a56db",
+                "inverse-primary": "#b5c4ff",
+                "on-tertiary-fixed-variant": "#653e00",
+                "primary-fixed": "#dbe1ff",
+                "surface-dim": "#d3daea",
+                "inverse-surface": "#2a313d",
+                "inverse-on-surface": "#ebf1ff",
+                "surface-bright": "#f9f9ff",
+                "on-tertiary-fixed": "#2a1700",
+                "on-tertiary": "#ffffff",
+                "primary": "#003fb1",
+                "on-secondary": "#ffffff",
+                "on-secondary-fixed-variant": "#005236",
+                "error-container": "#ffdad6",
+                "surface-variant": "#dce2f3",
+                "on-secondary-fixed": "#002113",
+                "secondary-container": "#6cf8bb",
+                "on-error-container": "#93000a",
+                "surface-container-high": "#e2e8f8",
+                "on-tertiary-container": "#ffd6a8",
+                "surface-container-low": "#f0f3ff",
+                "outline-variant": "#c3c5d7",
+                "on-surface": "#151c27",
+                "on-surface-variant": "#434654",
+                "surface-tint": "#1353d8",
+                "on-error": "#ffffff",
+                "tertiary-container": "#895600",
+                "error": "#ba1a1a",
+                "surface-container": "#e7eefe",
+                "tertiary": "#694100",
+                "on-background": "#151c27",
+                "primary-fixed-dim": "#b5c4ff",
+                "surface-container-lowest": "#ffffff",
+                "surface": "#f9f9ff",
+                "background": "#f9f9ff",
+                "tertiary-fixed": "#ffddb8",
+                "on-primary-fixed-variant": "#003dab",
+                "surface-container-highest": "#dce2f3",
+                "outline": "#737686",
+                "on-secondary-container": "#00714d",
+                "tertiary-fixed-dim": "#ffb95f",
+                "secondary-fixed": "#6ffbbe",
+                "on-primary-fixed": "#00174d",
+                "on-primary-container": "#d4dcff",
+                "secondary-fixed-dim": "#4edea3",
+                "secondary": "#006c49",
+                "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.5rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "base": "8px",
+                "xs": "4px",
+                "sm": "12px",
+                "md": "24px",
+                "gutter": "24px",
+                "xl": "64px",
+                "lg": "40px",
+                "container-max": "1200px"
+            },
+            "fontFamily": {
+                "headline-sm": ["Inter"],
+                "display-lg-mobile": ["Inter"],
+                "display-lg": ["Inter"],
+                "phonetic-label": ["Inter"],
+                "headline-md": ["Inter"],
+                "body-lg": ["Inter"],
+                "label-caps": ["Inter"],
+                "body-md": ["Inter"]
+            },
+            "fontSize": {
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "phonetic-label": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f0f3ff;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface font-body-md">
+<!-- TopAppBar Component -->
+<header class="bg-surface dark:bg-on-background shadow-sm dark:shadow-none docked full-width top-0 z-50 sticky border-b border-outline-variant/30">
+<div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-20">
+<div class="flex items-center gap-lg">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tight">LexiLearn</span>
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">A1</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">A2</a>
+<a class="text-primary dark:text-secondary-fixed-dim border-b-2 border-primary dark:border-secondary-fixed-dim font-bold pb-1" href="#">B1</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">B2</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">C1</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">C2</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low dark:bg-surface-container-lowest rounded-lg border border-outline-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/50 w-64 text-body-md transition-shadow" placeholder="Search vocabulary..." type="text"/>
+</div>
+<div class="flex gap-sm">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter py-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Sidebar (3/12 Width) -->
+<aside class="lg:col-span-3 flex flex-col gap-md">
+<!-- Learning Progress Card -->
+<section class="bg-white border border-outline-variant/30 rounded-lg p-md shadow-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-background mb-md font-bold">Learning Progress</h2>
+<div class="space-y-md">
+<div class="flex justify-between items-end mb-xs">
+<span class="text-body-md text-on-surface-variant">Overall Mastery</span>
+<span class="font-bold text-primary">65%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 65%"></div>
+</div>
+<div class="grid grid-cols-2 gap-sm pt-base">
+<div class="bg-surface-container-low p-sm rounded-lg text-center border border-outline-variant/20">
+<p class="text-headline-md font-bold text-primary">12</p>
+<p class="text-label-caps text-on-surface-variant">TODAY</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg text-center border border-outline-variant/20">
+<p class="text-headline-md font-bold text-secondary">420</p>
+<p class="text-label-caps text-on-surface-variant">TOTAL</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Word of the Day -->
+<section class="bg-primary-container text-on-primary-container rounded-lg p-md shadow-sm relative overflow-hidden">
+<div class="flex justify-between items-center mb-sm relative z-10">
+<span class="font-label-caps text-label-caps opacity-80 uppercase tracking-wider">Word of the Day</span>
+<span class="material-symbols-outlined text-sm">star</span>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md mb-xs font-bold">Inherent</h3>
+<p class="font-phonetic-label text-phonetic-label opacity-80 mb-sm">/ɪnˈhɪər.ənt/</p>
+<p class="font-body-md text-body-md italic mb-md">Doğasında olan, Kalıtımsal</p>
+<button class="w-full bg-white text-primary py-2.5 rounded-lg font-bold hover:bg-surface-container-low transition-colors shadow-sm">View Details</button>
+</div>
+</section>
+<!-- Proficiency Card -->
+<div class="bg-inverse-surface rounded-lg p-md text-inverse-on-surface shadow-sm">
+<h4 class="font-headline-sm text-headline-sm mb-xs font-bold">B2 Proficiency</h4>
+<p class="text-body-md text-surface-variant mb-md text-sm">Unlock 500+ advanced terms and exam prep materials.</p>
+<button class="w-full bg-secondary-fixed text-on-secondary-fixed font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity shadow-sm">Take Test</button>
+</div>
+</aside>
+<!-- Main Vocabulary List (9/12 Width) -->
+<div class="lg:col-span-9 flex flex-col gap-md">
+<!-- Functional Header / Batch Actions -->
+<div class="bg-white border border-outline-variant/30 rounded-lg shadow-sm p-sm md:px-md md:py-sm flex flex-col md:flex-row md:items-center justify-between gap-md">
+<div class="flex items-center gap-sm">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 text-primary bg-surface-container-low border-outline-variant rounded focus:ring-primary/50" type="checkbox"/>
+<span class="text-sm font-bold text-on-surface-variant">Select All</span>
+</label>
+<div class="w-px h-6 bg-outline-variant/50 mx-2 hidden md:block"></div>
+<button class="text-sm font-bold text-outline hover:text-primary transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">check_circle</span> Mark as Learned
+                            </button>
+</div>
+<div class="flex flex-1 max-w-md gap-sm items-center justify-end">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">search</span>
+<input class="w-full pl-9 pr-4 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:outline-none transition-shadow" placeholder="Search B1 vocabulary..." type="text"/>
+</div>
+<div class="flex items-center bg-surface-container-low border border-outline-variant/50 rounded-lg p-1">
+<button class="px-3 py-1.5 text-xs font-bold bg-white text-primary rounded-md shadow-sm">A-Z</button>
+<button class="px-3 py-1.5 text-xs font-bold text-on-surface-variant hover:text-primary rounded-md transition-colors">Status</button>
+</div>
+<button class="p-2 border border-outline-variant/50 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Vocabulary Tiles List -->
+<div class="flex flex-col gap-sm">
+<!-- Word Item 1 -->
+<div class="bg-white border border-outline-variant/30 rounded-lg p-sm md:px-md md:py-4 flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+<div class="flex items-center gap-md flex-1">
+<label class="hidden md:flex items-center">
+<input class="w-4 h-4 text-primary bg-surface-container-low border-outline-variant rounded focus:ring-primary/50" type="checkbox"/>
+</label>
+<button class="w-10 h-10 rounded-full bg-primary-container/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all shrink-0">
+<span class="material-symbols-outlined text-2xl">play_arrow</span>
+</button>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-x-md items-center flex-1">
+<div class="flex flex-col md:flex-row md:items-baseline md:gap-sm">
+<h3 class="font-bold text-on-background text-headline-sm">Acknowledge</h3>
+<span class="text-sm text-outline font-phonetic-label">/əkˈnɒl.ɪdʒ/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic truncate">Kabul etmek, Onaylamak</p>
+<div class="hidden md:flex justify-end pr-md">
+<button class="flex items-center gap-xs px-3 py-1 bg-secondary-container/20 rounded-full border border-secondary/30 hover:bg-secondary-container/40 transition-colors">
+<span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[11px] font-bold text-secondary uppercase tracking-wide">Learned</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-outline hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</button>
+</div>
+</div>
+<!-- Word Item 2 -->
+<div class="bg-white border border-outline-variant/30 rounded-lg p-sm md:px-md md:py-4 flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+<div class="flex items-center gap-md flex-1">
+<label class="hidden md:flex items-center">
+<input class="w-4 h-4 text-primary bg-surface-container-low border-outline-variant rounded focus:ring-primary/50" type="checkbox"/>
+</label>
+<button class="w-10 h-10 rounded-full bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all shrink-0">
+<span class="material-symbols-outlined text-2xl">play_arrow</span>
+</button>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-x-md items-center flex-1">
+<div class="flex flex-col md:flex-row md:items-baseline md:gap-sm">
+<h3 class="font-bold text-on-background text-headline-sm">Subsequent</h3>
+<span class="text-sm text-outline font-phonetic-label">/ˈsʌb.sɪ.kwənt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic truncate">Ardışık, Sonradan gelen</p>
+<div class="hidden md:flex justify-end pr-md">
+<button class="text-[11px] font-bold text-outline border border-outline-variant/50 px-3 py-1 rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all uppercase tracking-wide">Mark as Learned</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-outline hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-xl">star</span>
+</button>
+</div>
+</div>
+<!-- Word Item 3 -->
+<div class="bg-white border border-outline-variant/30 rounded-lg p-sm md:px-md md:py-4 flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+<div class="flex items-center gap-md flex-1">
+<label class="hidden md:flex items-center">
+<input class="w-4 h-4 text-primary bg-surface-container-low border-outline-variant rounded focus:ring-primary/50" type="checkbox"/>
+</label>
+<button class="w-10 h-10 rounded-full bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all shrink-0">
+<span class="material-symbols-outlined text-2xl">play_arrow</span>
+</button>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-x-md items-center flex-1">
+<div class="flex flex-col md:flex-row md:items-baseline md:gap-sm">
+<h3 class="font-bold text-on-background text-headline-sm">Facilitate</h3>
+<span class="text-sm text-outline font-phonetic-label">/fəˈsɪl.ɪ.teɪt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic truncate">Kolaylaştırmak</p>
+<div class="hidden md:flex justify-end pr-md">
+<button class="text-[11px] font-bold text-outline border border-outline-variant/50 px-3 py-1 rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all uppercase tracking-wide">Mark as Learned</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-outline hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-xl">star</span>
+</button>
+</div>
+</div>
+<!-- Word Item 4 -->
+<div class="bg-white border border-outline-variant/30 rounded-lg p-sm md:px-md md:py-4 flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+<div class="flex items-center gap-md flex-1">
+<label class="hidden md:flex items-center">
+<input class="w-4 h-4 text-primary bg-surface-container-low border-outline-variant rounded focus:ring-primary/50" type="checkbox"/>
+</label>
+<button class="w-10 h-10 rounded-full bg-primary-container/10 text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all shrink-0">
+<span class="material-symbols-outlined text-2xl">play_arrow</span>
+</button>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-x-md items-center flex-1">
+<div class="flex flex-col md:flex-row md:items-baseline md:gap-sm">
+<h3 class="font-bold text-on-background text-headline-sm">Collaborate</h3>
+<span class="text-sm text-outline font-phonetic-label">/kəˈlæb.ə.reɪt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic truncate">İşbirliği yapmak</p>
+<div class="hidden md:flex justify-end pr-md">
+<button class="flex items-center gap-xs px-3 py-1 bg-secondary-container/20 rounded-full border border-secondary/30 hover:bg-secondary-container/40 transition-colors">
+<span class="material-symbols-outlined text-secondary text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[11px] font-bold text-secondary uppercase tracking-wide">Learned</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-outline hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</button>
+</div>
+</div>
+<!-- Word Item 5 -->
+<div class="bg-white border border-outline-variant/30 rounded-lg p-sm md:px-md md:py-4 flex items-center justify-between hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+<div class="flex items-center gap-md flex-1">
+<label class="hidden md:flex items-center">
+<input class="w-4 h-4 text-primary bg-surface-container-low border-outline-variant rounded focus:ring-primary/50" type="checkbox"/>
+</label>
+<button class="w-10 h-10 rounded-full bg-surface-container-low text-on-surface-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all shrink-0">
+<span class="material-symbols-outlined text-2xl">play_arrow</span>
+</button>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-x-md items-center flex-1">
+<div class="flex flex-col md:flex-row md:items-baseline md:gap-sm">
+<h3 class="font-bold text-on-background text-headline-sm">Constraint</h3>
+<span class="text-sm text-outline font-phonetic-label">/kənˈstreɪnt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic truncate">Kısıtlama, Zorlama</p>
+<div class="hidden md:flex justify-end pr-md">
+<button class="text-[11px] font-bold text-outline border border-outline-variant/50 px-3 py-1 rounded-full hover:bg-primary hover:text-white hover:border-primary transition-all uppercase tracking-wide">Mark as Learned</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="text-outline hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-xl">star</span>
+</button>
+</div>
+</div>
+</div>
+<div class="mt-sm text-center py-sm">
+<button class="text-primary font-bold text-sm flex items-center gap-xs mx-auto hover:bg-primary/5 px-4 py-2 rounded-lg transition-all uppercase tracking-wider">
+                            Load More Words <span class="material-symbols-outlined text-xl">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component -->
+<footer class="bg-surface-container dark:bg-inverse-surface border-t border-outline-variant/30 dark:border-outline mt-xl">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-gutter py-lg max-w-container-max mx-auto gap-md">
+<div class="flex flex-col items-center md:items-start gap-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-inverse-on-surface tracking-tight">LexiLearn</span>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant text-center md:text-left">© 2024 LexiLearn Academic. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Help Center</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</body></html>

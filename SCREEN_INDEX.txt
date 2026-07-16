@@ -1,0 +1,7 @@
+- Yoğun Liste Görünümü - Kelime Gezgini -> screens/screen_23b7a965f5c242c6b5473295d02d110c
+- Liste ve İlerleme - Kelime Gezgini -> screens/screen_5e3e511abef34fa7a9ec6afc61030a91
+- Kelime Gezgini - LexiLearn -> screens/screen_6a712fc5b4d84b37bc9d7a2d35310050
+- Minimalist Odak - Kelime Gezgini -> screens/screen_9dfd91874ce94d0aa84ab15070bcb9d7
+- Yoğun Liste Görünümü - Kelime Gezgini (Geliştirilmiş) -> screens/screen_ec7178604e744a11ba4e065410a31456
+- Modern Liste Deneyimi - Kelime Gezgini -> screens/screen_5a48bce6230d40aebbc52a05cdd2e98d
+- Gelişmiş Kelime Gezgini - Flashcard ve Kategoriler -> screens/screen_aa037a8d793943a1928b53fe815e885c

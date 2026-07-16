@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#151c27",
+                    "tertiary": "#694100",
+                    "outline": "#737686",
+                    "secondary-container": "#6cf8bb",
+                    "tertiary-container": "#895600",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#00174d",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "secondary": "#006c49",
+                    "surface-tint": "#1353d8",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-primary-container": "#d4dcff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#e2e8f8",
+                    "primary-container": "#1a56db",
+                    "inverse-surface": "#2a313d",
+                    "background": "#f9f9ff",
+                    "primary-fixed-dim": "#b5c4ff",
+                    "on-tertiary-container": "#ffd6a8",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary-fixed-variant": "#003dab",
+                    "surface-container-low": "#f0f3ff",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-variant": "#dce2f3",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#b5c4ff",
+                    "surface-container-highest": "#dce2f3",
+                    "on-secondary-container": "#00714d",
+                    "surface-bright": "#f9f9ff",
+                    "inverse-on-surface": "#ebf1ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "outline-variant": "#c3c5d7",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#dbe1ff",
+                    "surface-container": "#e7eefe",
+                    "surface": "#f9f9ff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "error-container": "#ffdad6",
+                    "primary": "#003fb1",
+                    "on-surface": "#151c27",
+                    "surface-dim": "#d3daea",
+                    "on-surface-variant": "#434654",
+                    "on-secondary-fixed": "#002113"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "64px",
+                    "lg": "40px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "sm": "12px",
+                    "base": "8px",
+                    "container-max": "1200px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "phonetic-label": ["Inter"],
+                    "label-caps": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "phonetic-label": ["15px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9ff;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md">
+<!-- TopAppBar Component -->
+<header class="bg-surface dark:bg-on-background shadow-sm dark:shadow-none docked full-width top-0 z-50 sticky">
+<div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-20">
+<div class="flex items-center gap-lg">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">LexiLearn</span>
+<nav class="hidden md:flex items-center gap-md">
+<!-- Semantic Mapping: B1 is active for Word Explorer context -->
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">A1</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">A2</a>
+<a class="text-primary dark:text-secondary-fixed-dim border-b-2 border-primary dark:border-secondary-fixed-dim font-bold pb-1 hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">B1</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">B2</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">C1</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-200" href="#">C2</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low dark:bg-surface-container-lowest rounded-lg border border-outline-variant focus:outline-none focus:ring-2 focus:ring-primary w-64 text-body-md" placeholder="Search vocabulary..." type="text"/>
+</div>
+<div class="flex gap-sm">
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+</button>
+<button class="text-primary dark:text-primary-fixed-dim hover:opacity-80 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter py-lg"><div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Sidebar: Progress & Word of the Day -->
+<aside class="lg:col-span-4 flex flex-col gap-md">
+<!-- Learning Progress Card -->
+<section class="bg-white border border-outline-variant rounded-xl p-md shadow-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-background mb-md">Learning Progress</h2>
+<div class="space-y-md">
+<div class="flex justify-between items-end mb-xs">
+<span class="text-body-md text-on-surface-variant">Overall Mastery</span>
+<span class="font-bold text-primary">65%</span>
+</div>
+<div class="w-full bg-surface-container-high rounded-full h-2.5">
+<div class="bg-primary h-2.5 rounded-full" style="width: 65%"></div>
+</div>
+<div class="grid grid-cols-2 gap-md pt-base">
+<div class="bg-surface-container-low p-sm rounded-lg text-center">
+<p class="text-display-lg-mobile font-bold text-primary">12</p>
+<p class="text-label-caps text-on-surface-variant">TODAY</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg text-center">
+<p class="text-display-lg-mobile font-bold text-secondary">420</p>
+<p class="text-label-caps text-on-surface-variant">TOTAL</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Compact Word of the Day -->
+<section class="bg-primary-container text-on-primary-container rounded-xl p-md shadow-sm">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-label-caps text-label-caps opacity-80">WORD OF THE DAY</span>
+<span class="material-symbols-outlined text-sm">star</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-xs">Inherent</h3>
+<p class="font-phonetic-label text-phonetic-label opacity-80 mb-sm">/ɪnʈher.ənt/</p>
+<p class="font-body-md text-body-md italic mb-md">‐ Doęasında olan, Kalıtımsal</p>
+<button class="w-full bg-white text-primary py-2 rounded-lg font-bold hover:bg-surface-container-low transition-colors">View Details</button>
+</section>
+<!-- Promotion Card -->
+<div class="bg-inverse-surface rounded-xl p-md text-inverse-on-surface">
+<h4 class="font-headline-sm text-headline-sm mb-xs">B2 Proficiency</h4>
+<p class="text-body-md text-surface-variant mb-md">Unlock 500+ advanced terms.</p>
+<button class="w-full bg-secondary-fixed text-on-secondary-fixed font-bold py-2 rounded-lg">Take Test</button>
+</div>
+</aside>
+<!-- Main Content: Word List -->
+<div class="lg:col-span-8">
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h2 class="font-headline-sm text-headline-sm">Vocabulary List (B1)</h2>
+<div class="flex gap-sm">
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors"><span class="material-symbols-outlined">filter_list</span></button>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors"><span class="material-symbols-outlined">sort_by_alpha</span></button>
+</div>
+</div>
+<!-- List Items -->
+<div class="divide-y divide-outline-variant">
+<!-- Item 1 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:scale-105 transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+<div>
+<div class="flex items-center gap-sm">
+<h3 class="font-headline-sm text-on-background">Acknowledge</h3>
+<span class="text-phonetic-label text-outline">/əkɘnɒl.ɦdʒ/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic">Kabul etmek, Onaylamak</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs px-3 py-1 bg-secondary-container/20 rounded-full">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-caps text-secondary">LEARNED</span>
+</div>
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined">bookmark</span></button>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center hover:scale-105 transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+<div>
+<div class="flex items-center gap-sm">
+<h3 class="font-headline-sm text-on-background">Subsequent</h3>
+<span class="text-phonetic-label text-outline">/ʈsʇb.sɦ.kwənt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic">Ardıřık, Sonradan gelen</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="font-label-caps text-outline border border-outline-variant px-3 py-1 rounded-full hover:bg-primary hover:text-white transition-all">MARK AS LEARNED</button>
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined">bookmark</span></button>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center hover:scale-105 transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+<div>
+<div class="flex items-center gap-sm">
+<h3 class="font-headline-sm text-on-background">Facilitate</h3>
+<span class="text-phonetic-label text-outline">/fəʈsɦl.ɦ.teɦt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic">Kolaylařtırmak</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="font-label-caps text-outline border border-outline-variant px-3 py-1 rounded-full hover:bg-primary hover:text-white transition-all">MARK AS LEARNED</button>
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined">bookmark</span></button>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center hover:scale-105 transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+<div>
+<div class="flex items-center gap-sm">
+<h3 class="font-headline-sm text-on-background">Collaborate</h3>
+<span class="text-phonetic-label text-outline">/kəʈl%b.ə.reɦt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic">İřbirlięi yapmak</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs px-3 py-1 bg-secondary-container/20 rounded-full">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-caps text-secondary">LEARNED</span>
+</div>
+<button class="text-primary"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bookmark</span></button>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-lowest transition-colors">
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center hover:scale-105 transition-all">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+<div>
+<div class="flex items-center gap-sm">
+<h3 class="font-headline-sm text-on-background">Constraint</h3>
+<span class="text-phonetic-label text-outline">/kənʈstreɦnt/</span>
+</div>
+<p class="text-body-md text-on-surface-variant italic">Kısıtlama, Zorlama</p>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="font-label-caps text-outline border border-outline-variant px-3 py-1 rounded-full hover:bg-primary hover:text-white transition-all">MARK AS LEARNED</button>
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined">bookmark</span></button>
+</div>
+</div>
+</div>
+<div class="p-md text-center">
+<button class="text-primary font-label-caps text-label-caps flex items-center gap-sm mx-auto hover:opacity-80 transition-opacity">
+          LOAD MORE WORDS <span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+</div></main>
+<!-- Footer Component -->
+<footer class="bg-surface-container dark:bg-inverse-surface border-t border-outline-variant dark:border-outline mt-xl">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-gutter py-lg max-w-container-max mx-auto gap-md">
+<div class="flex flex-col items-center md:items-start gap-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-inverse-on-surface">LexiLearn</span>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant text-center md:text-left">© 2024 LexiLearn Academic. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Help Center</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim font-body-md text-body-md transition-colors" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</body></html>

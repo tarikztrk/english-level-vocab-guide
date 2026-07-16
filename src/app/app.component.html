@@ -1,0 +1,20 @@
+<div class="min-h-screen bg-background text-on-surface">
+  <header class="sticky top-0 z-50 border-b border-outline-variant/20 bg-surface/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-gutter py-4">
+      <a routerLink="/" class="flex items-center gap-3 text-lg font-bold text-primary hover:text-primary-dark">
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-base font-bold text-white">L</div>
+        <span>LexiLearn</span>
+      </a>
+
+      <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold">
+        <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Dashboard</a>
+        <a routerLink="/list" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Word List</a>
+        <a routerLink="/flashcards" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Flashcards</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="pb-10">
+    <router-outlet></router-outlet>
+  </main>
+</div>
