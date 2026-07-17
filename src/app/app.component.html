@@ -6,11 +6,26 @@
         <span>LexiLearn</span>
       </a>
 
-      <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold">
-        <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Dashboard</a>
-        <a routerLink="/list" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Word List</a>
-        <a routerLink="/flashcards" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Flashcards</a>
-      </nav>
+      <div class="flex flex-wrap items-center gap-3">
+        <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold">
+          <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Dashboard</a>
+          <a routerLink="/list" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Word List</a>
+          <a routerLink="/flashcards" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Flashcards</a>
+        </nav>
+
+        <ng-container *ngIf="user$ | async as user; else signedOut">
+          <span class="hidden max-w-[220px] truncate rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant md:inline">
+            {{ user.email }}
+          </span>
+          <button class="rounded-full border border-outline-variant/30 bg-surface px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container" type="button" (click)="signOut()">
+            Logout
+          </button>
+        </ng-container>
+
+        <ng-template #signedOut>
+          <a routerLink="/auth" routerLinkActive="text-primary" class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark">Sign In</a>
+        </ng-template>
+      </div>
     </div>
   </header>
 
