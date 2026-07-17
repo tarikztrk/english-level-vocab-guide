@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VocabularyDataService } from '../../services/vocabulary-data.service';
+import { VocabularyDataService, VocabularyWord } from '../../services/vocabulary-data.service';
 
 interface WordItem {
   id?: number;
@@ -93,7 +93,7 @@ export class ListViewComponent implements OnInit {
     try {
       const data = await this.vocabularyDataService.getWords();
       this.vocabulary = Array.isArray(data) && data.length > 0
-        ? data.map((item: any, index: number) => ({
+        ? data.map((item: VocabularyWord, index: number) => ({
             id: item.id ?? index + 1,
             word: item.word ?? '',
             phonetic: item.phonetic ?? '',
