@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Session, User } from '@supabase/supabase-js';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
 import { SupabaseService } from './supabase.service';
 
 @Injectable({
@@ -12,6 +12,9 @@ export class AuthService {
 
   private readonly userSubject = new BehaviorSubject<User | null>(null);
   readonly user$ = this.userSubject.asObservable();
+
+  private readonly initializedSubject = new BehaviorSubject(false);
+  readonly initialized$ = this.initializedSubject.asObservable();
 
   constructor(private supabaseService: SupabaseService) {
     void this.loadSession();
@@ -63,16 +66,26 @@ export class AuthService {
     return this.userSubject.value;
   }
 
+  async waitUntilInitialized() {
+    if (this.initializedSubject.value) {
+      return;
+    }
+
+    await firstValueFrom(this.initialized$.pipe(filter(Boolean)));
+  }
+
   private async loadSession() {
     const { data, error } = await this.supabaseService.client.auth.getSession();
 
     if (error) {
       console.error('Could not load auth session', error);
       this.setSession(null);
+      this.initializedSubject.next(true);
       return;
     }
 
     this.setSession(data.session);
+    this.initializedSubject.next(true);
   }
 
   private setSession(session: Session | null) {

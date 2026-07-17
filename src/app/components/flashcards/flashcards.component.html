@@ -1,55 +1,184 @@
 <div class="min-h-screen bg-background text-on-surface">
   <section class="mx-auto max-w-[960px] px-gutter py-10">
-    <div class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-sm">
-      <div class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div
+      class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-sm"
+    >
+      <div
+        class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+      >
         <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.18em] text-primary/90">{{ title }}</p>
-          <h1 class="mt-3 text-3xl font-bold text-on-surface">Flashcard Study Mode</h1>
-          <p class="mt-2 max-w-2xl text-sm text-on-surface-variant">Practice key vocabulary with quick flip cards, track your progress, and review by category.</p>
+          <p
+            class="text-sm font-semibold uppercase tracking-[0.18em] text-primary/90"
+          >
+            {{ title }}
+          </p>
+          <h1 class="mt-3 text-3xl font-bold text-on-surface">
+            Flashcard Study Mode
+          </h1>
+          <p class="mt-2 max-w-2xl text-sm text-on-surface-variant">
+            Practice key vocabulary with quick flip cards, track your progress,
+            and review by category.
+          </p>
         </div>
-        <div class="flex flex-wrap gap-3">
-          <span class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant">Card {{ progressLabel }}</span>
-          <span class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant">Category: {{ currentCard.category }}</span>
+        <div *ngIf="currentCard" class="flex flex-wrap gap-3">
+          <span
+            class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant"
+            >Card {{ progressLabel }}</span
+          >
+          <span
+            class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant"
+            >Category: {{ currentCard.category }}</span
+          >
         </div>
       </div>
 
-      <div class="rounded-[2rem] border border-outline-variant/20 bg-surface p-8 shadow-lg shadow-surface-container-low">
-        <div class="mb-6 text-center">
-          <span class="text-sm uppercase tracking-[0.2em] text-on-surface-variant">Flashcard</span>
-          <div class="mx-auto mt-6 w-full max-w-2xl perspective">
-            <div class="relative mx-auto h-72 rounded-[2rem] transition-transform duration-500 ease-in-out flip-card-inner" [ngClass]="{ 'rotate-y-180': isFlipped }">
-              <div class="absolute inset-0 rounded-[2rem] bg-white p-10 text-center shadow-lg backface-hidden flex flex-col justify-center items-center">
-                <p class="text-sm uppercase tracking-[0.2em] text-on-surface-variant">Front</p>
-                <h2 class="mt-4 text-4xl font-bold text-on-surface">{{ currentCard.front }}</h2>
-                <p class="mt-4 text-sm text-on-surface-variant">{{ currentCard.pronunciation }}</p>
-              </div>
-              <div class="absolute inset-0 rounded-[2rem] bg-primary text-white p-10 text-center shadow-lg backface-hidden rotate-y-180 flex flex-col justify-center items-center">
-                <p class="text-sm uppercase tracking-[0.2em] text-primary/90">Back</p>
-                <p class="mt-4 text-xl font-semibold">{{ currentCard.back }}</p>
-                <p class="mt-4 text-sm leading-6">{{ currentCard.example }}</p>
-                <button (click)="listenToPronunciation()" class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container-low">
-                  <span class="material-symbols-outlined">volume_up</span>
-                  Listen</button>
+      <!-- Toast message -->
+      <div
+        *ngIf="progressMessage"
+        class="fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border border-primary/20 bg-white px-4 py-3 text-sm font-semibold text-primary shadow-xl shadow-surface-container-high/40"
+      >
+        <span class="material-symbols-outlined text-xl">info</span>
+        <span class="flex-1">{{ progressMessage }}</span>
+        <button
+          type="button"
+          class="text-on-surface-variant transition hover:text-primary"
+          (click)="dismissProgressMessage()"
+        >
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Loading state -->
+      <div
+        *ngIf="isLoading"
+        class="rounded-3xl border border-outline-variant/20 bg-surface p-8 text-center shadow-sm"
+      >
+        <div
+          class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"
+        ></div>
+        <p class="mt-4 text-sm font-semibold text-on-surface-variant">
+          Loading flashcards...
+        </p>
+      </div>
+
+      <!-- Error state -->
+      <div
+        *ngIf="!isLoading && loadError"
+        class="rounded-3xl border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700"
+      >
+        {{ loadError }}
+      </div>
+
+      <!-- Empty state -->
+      <div
+        *ngIf="!isLoading && !loadError && cards.length === 0"
+        class="rounded-3xl border border-outline-variant/20 bg-surface p-8 text-center shadow-sm"
+      >
+        <span class="material-symbols-outlined text-4xl text-outline-variant"
+          >style</span
+        >
+        <h3 class="mt-3 text-lg font-bold">No flashcards available</h3>
+        <p class="mt-2 text-sm text-on-surface-variant">
+          There are no vocabulary cards to study right now.
+        </p>
+      </div>
+
+      <!-- Flashcard area -->
+      <ng-container *ngIf="!isLoading && currentCard">
+        <div
+          class="rounded-[2rem] border border-outline-variant/20 bg-surface p-8 shadow-lg shadow-surface-container-low"
+        >
+          <div class="mb-6 text-center">
+            <span
+              class="text-sm uppercase tracking-[0.2em] text-on-surface-variant"
+              >Flashcard</span
+            >
+            <div class="mx-auto mt-6 w-full max-w-2xl perspective">
+              <div
+                class="relative mx-auto h-72 rounded-[2rem] transition-transform duration-500 ease-in-out flip-card-inner"
+                [ngClass]="{ 'rotate-y-180': isFlipped }"
+              >
+                <div
+                  class="absolute inset-0 rounded-[2rem] bg-white p-10 text-center shadow-lg backface-hidden flex flex-col justify-center items-center"
+                >
+                  <p
+                    class="text-sm uppercase tracking-[0.2em] text-on-surface-variant"
+                  >
+                    Front
+                  </p>
+                  <h2 class="mt-4 text-4xl font-bold text-on-surface">
+                    {{ currentCard.front }}
+                  </h2>
+                  <p class="mt-4 text-sm text-on-surface-variant">
+                    {{ currentCard.pronunciation }}
+                  </p>
+                </div>
+                <div
+                  class="absolute inset-0 rounded-[2rem] bg-primary text-white p-10 text-center shadow-lg backface-hidden rotate-y-180 flex flex-col justify-center items-center"
+                >
+                  <p class="text-sm uppercase tracking-[0.2em] text-primary/90">
+                    Back
+                  </p>
+                  <p class="mt-4 text-xl font-semibold">
+                    {{ currentCard.back }}
+                  </p>
+                  <p class="mt-4 text-sm leading-6">
+                    {{ currentCard.example }}
+                  </p>
+                  <button
+                    (click)="listenToPronunciation()"
+                    class="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container-low"
+                  >
+                    <span class="material-symbols-outlined">volume_up</span>
+                    Listen
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
+          <div class="mt-8 grid gap-3 sm:grid-cols-[1fr_1fr_1fr]">
+            <button
+              (click)="prevCard()"
+              class="rounded-2xl border border-outline-variant/30 bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-primary/5"
+            >
+              Previous
+            </button>
+            <button
+              (click)="flipCard()"
+              class="rounded-2xl border border-outline-variant/30 bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-primary/5"
+            >
+              Flip Card
+            </button>
+            <button
+              (click)="nextCard()"
+              class="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white transition hover:bg-primary-dark"
+            >
+              Next
+            </button>
+          </div>
         </div>
 
-        <div class="mt-8 grid gap-3 sm:grid-cols-[1fr_1fr_1fr]">
-          <button (click)="prevCard()" class="rounded-2xl border border-outline-variant/30 bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-primary/5">Previous</button>
-          <button (click)="flipCard()" class="rounded-2xl border border-outline-variant/30 bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-primary/5">Flip Card</button>
-          <button (click)="nextCard()" class="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white transition hover:bg-primary-dark">Next</button>
+        <div
+          class="mt-8 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm"
+        >
+          <h3 class="text-lg font-bold">Quick Review</h3>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button
+              *ngFor="let card of cards; let index = index"
+              (click)="goToCard(index)"
+              [ngClass]="{
+                'bg-primary text-white': currentIndex === index,
+                'bg-surface-container-low text-on-surface-variant':
+                  currentIndex !== index,
+              }"
+              class="rounded-full px-3 py-2 text-sm font-semibold transition"
+            >
+              {{ index + 1 }}
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div class="mt-8 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm">
-        <h3 class="text-lg font-bold">Quick Review</h3>
-        <div class="mt-4 flex flex-wrap gap-3">
-          <button *ngFor="let card of cards; let index = index" (click)="goToCard(index)" [ngClass]="{ 'bg-primary text-white': currentIndex === index, 'bg-surface-container-low text-on-surface-variant': currentIndex !== index }" class="rounded-full px-3 py-2 text-sm font-semibold transition">
-            {{ index + 1 }}
-          </button>
-        </div>
-      </div>
+      </ng-container>
     </div>
   </section>
 </div>
