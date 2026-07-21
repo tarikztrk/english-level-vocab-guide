@@ -33,7 +33,7 @@
             <div class="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
               <div class="relative">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
-                <input class="w-full rounded-2xl border border-outline-variant/50 bg-white px-10 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10" [(ngModel)]="search" placeholder="Search vocabulary..." type="text" />
+                <input class="w-full rounded-2xl border border-outline-variant/50 bg-white px-10 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10" [(ngModel)]="search" (ngModelChange)="onSearchChange()" placeholder="Search vocabulary..." type="text" />
               </div>
               <div class="flex flex-wrap gap-3 justify-end">
                 <button *ngFor="let option of sortOptions" (click)="setSort(option)" [ngClass]="{ 'bg-primary text-white': selectedSort === option, 'bg-white text-primary border border-outline-variant/50 hover:bg-surface-container': selectedSort !== option }" class="rounded-2xl px-4 py-3 text-sm font-semibold transition">
@@ -90,15 +90,15 @@
           <div class="space-y-4">
             <div class="rounded-2xl bg-surface-container-low p-4">
               <p class="text-sm text-on-surface-variant">Mastery</p>
-              <p class="mt-2 text-2xl font-bold text-primary">65%</p>
+              <p class="mt-2 text-2xl font-bold text-primary">{{ currentMastery }}%</p>
             </div>
             <div class="rounded-2xl bg-surface-container-low p-4">
-              <p class="text-sm text-on-surface-variant">New Words</p>
-              <p class="mt-2 text-2xl font-bold text-secondary">24</p>
+              <p class="text-sm text-on-surface-variant">Learned Words</p>
+              <p class="mt-2 text-2xl font-bold text-secondary">{{ currentLearned }}</p>
             </div>
             <div class="rounded-2xl bg-surface-container-low p-4">
-              <p class="text-sm text-on-surface-variant">Words Remaining</p>
-              <p class="mt-2 text-2xl font-bold text-tertiary">7</p>
+              <p class="text-sm text-on-surface-variant">Total Words</p>
+              <p class="mt-2 text-2xl font-bold text-tertiary">{{ currentTotal }}</p>
             </div>
           </div>
           <div class="mt-6 space-y-3">

@@ -27,28 +27,6 @@ export class DashboardComponent implements OnInit {
   ];
 
   selectedCategory = 'All';
-
-  get categories(): string[] {
-    const cats = new Set(this.vocabularyItems.map(item => item.category));
-    return ['All', ...Array.from(cats)].filter(c => c);
-  }
-
-  get totalWords(): number {
-    return this.vocabularyItems.length;
-  }
-
-  get learnedWords(): number {
-    return this.vocabularyItems.filter(item => item.learned).length;
-  }
-
-  get overallMastery(): number {
-    return this.totalWords > 0 ? Math.round((this.learnedWords / this.totalWords) * 100) : 0;
-  }
-
-  get activeLevelLabel(): string {
-    const tab = this.tabs.find(t => t.active);
-    return tab?.label === 'All Levels' || !tab ? '' : (tab.label + ' ');
-  }
   search = '';
   progressMessage = '';
   isLoading = true;
@@ -62,6 +40,13 @@ export class DashboardComponent implements OnInit {
   ];
 
   vocabularyItems: VocabularyWord[] = [];
+  filteredVocabulary: VocabularyWord[] = [];
+  categories: string[] = ['All'];
+
+  currentTotal = 0;
+  currentLearned = 0;
+  currentMastery = 0;
+  activeLevelLabel = '';
 
   private readonly fallbackVocabulary: VocabularyWord[] = [
     { id: 1, word: 'Inherent', phonetic: '/ɪnˈhɪər.ənt/', meaning: 'Doğasında olan, kalıtımsal', level: 'B1', category: 'Academic', example: '', audioUrl: '', learned: false, bookmarked: false },
@@ -75,30 +60,47 @@ export class DashboardComponent implements OnInit {
     void this.loadVocabulary();
   }
 
-  get filteredVocabulary() {
-    const activeTab = this.tabs.find(t => t.active)?.label;
-    return this.vocabularyItems.filter((item) => {
-      const matchesLevel = !activeTab || activeTab === 'All Levels' || item.level === activeTab;
+  onFilterChange() {
+    const activeTab = this.tabs.find(t => t.active);
+    const activeTabLabel = activeTab?.label;
+    
+    this.activeLevelLabel = !activeTab || activeTabLabel === 'All Levels' ? '' : (activeTabLabel + ' ');
+
+    this.filteredVocabulary = this.vocabularyItems.filter((item) => {
+      const matchesLevel = !activeTabLabel || activeTabLabel === 'All Levels' || item.level === activeTabLabel;
       const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;
-      const matchesSearch = this.search.trim().length === 0 || item.word.toLowerCase().includes(this.search.toLowerCase()) || item.meaning.toLowerCase().includes(this.search.toLowerCase());
+      const term = Math.max(0, this.search.trim().length) === 0 ? '' : this.search.toLowerCase();
+      const matchesSearch = term === '' || item.word.toLowerCase().includes(term) || item.meaning.toLowerCase().includes(term);
       return matchesLevel && matchesCategory && matchesSearch;
     });
+
+    this.currentTotal = this.filteredVocabulary.length;
+    this.currentLearned = this.filteredVocabulary.filter(item => item.learned).length;
+    this.currentMastery = this.currentTotal > 0 ? Math.round((this.currentLearned / this.currentTotal) * 100) : 0;
   }
 
   selectTab(label: string) {
     this.tabs = this.tabs.map((tab) => ({ ...tab, active: tab.label === label }));
+    this.onFilterChange();
   }
 
   selectCategory(category: string) {
     this.selectedCategory = category;
+    this.onFilterChange();
+  }
+
+  onSearchChange() {
+    this.onFilterChange();
   }
 
   toggleLearned(item: VocabularyWord) {
     item.learned = !item.learned;
+    this.onFilterChange();
 
     if (item.id) {
       void this.vocabularyDataService.saveProgress(item.id, { learned: item.learned }).catch((error) => {
         item.learned = !item.learned;
+        this.onFilterChange();
         this.showProgressMessage(error instanceof AuthenticationRequiredError
           ? error.message
           : 'Could not save vocabulary progress. Please try again.');
@@ -128,6 +130,9 @@ export class DashboardComponent implements OnInit {
       this.vocabularyItems = this.fallbackVocabulary;
     } finally {
       this.isLoading = false;
+      const cats = new Set(this.vocabularyItems.map(item => item.category));
+      this.categories = ['All', ...Array.from(cats)].filter(c => c);
+      this.onFilterChange();
     }
   }
 

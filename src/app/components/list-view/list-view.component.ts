@@ -15,10 +15,13 @@ export class ListViewComponent implements OnInit {
   selectedSort = 'A-Z';
   sortOptions = ['A-Z', 'Learned', 'New'];
 
-  get categories(): string[] {
-    const cats = new Set(this.vocabulary.map(item => item.category));
-    return ['All', ...Array.from(cats)].filter(c => c);
-  }
+  categories: string[] = ['All'];
+  filteredWords: VocabularyWord[] = [];
+  
+  currentTotal = 0;
+  currentLearned = 0;
+  currentMastery = 0;
+
   progressMessage = '';
   isLoading = true;
   loadError = '';
@@ -40,15 +43,16 @@ export class ListViewComponent implements OnInit {
     void this.loadVocabulary();
   }
 
-  get filteredWords() {
+  onFilterChange() {
     const query = this.search.trim().toLowerCase();
-    const filtered = this.vocabulary.filter((item) => {
+    let filtered = this.vocabulary.filter((item) => {
       const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;
-      const matchesSearch = query.length === 0 || item.word.toLowerCase().includes(query) || item.meaning.toLowerCase().includes(query);
+      const term = Math.max(0, query.length) === 0 ? '' : query;
+      const matchesSearch = term === '' || item.word.toLowerCase().includes(term) || item.meaning.toLowerCase().includes(term);
       return matchesCategory && matchesSearch;
     });
 
-    return filtered.sort((a, b) => {
+    filtered = filtered.sort((a, b) => {
       if (this.selectedSort === 'Learned') {
         return Number(b.learned) - Number(a.learned);
       }
@@ -57,22 +61,35 @@ export class ListViewComponent implements OnInit {
       }
       return a.word.localeCompare(b.word);
     });
+
+    this.filteredWords = filtered;
+    this.currentTotal = filtered.length;
+    this.currentLearned = filtered.filter(item => item.learned).length;
+    this.currentMastery = this.currentTotal > 0 ? Math.round((this.currentLearned / this.currentTotal) * 100) : 0;
+  }
+
+  onSearchChange() {
+    this.onFilterChange();
   }
 
   selectCategory(category: string) {
     this.selectedCategory = category;
+    this.onFilterChange();
   }
 
   setSort(option: string) {
     this.selectedSort = option;
+    this.onFilterChange();
   }
 
   toggleLearned(word: VocabularyWord) {
     word.learned = !word.learned;
+    this.onFilterChange();
 
     if (word.id) {
       void this.vocabularyDataService.saveProgress(word.id, { learned: word.learned }).catch((error) => {
         word.learned = !word.learned;
+        this.onFilterChange();
         this.showProgressMessage(error instanceof AuthenticationRequiredError
           ? error.message
           : 'Could not save learned state. Please try again.');
@@ -116,6 +133,9 @@ export class ListViewComponent implements OnInit {
       this.vocabulary = this.fallbackVocabulary;
     } finally {
       this.isLoading = false;
+      const cats = new Set(this.vocabulary.map(item => item.category));
+      this.categories = ['All', ...Array.from(cats)].filter(c => c);
+      this.onFilterChange();
     }
   }
 
