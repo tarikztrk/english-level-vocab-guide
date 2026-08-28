@@ -25,125 +25,95 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-md md:grid-cols-3">
-    <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Total Vocabulary</span>
-      <div class="mt-sm flex items-baseline gap-sm">
-        <strong class="font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ totalWords }}</strong>
-        <span class="font-label-caps text-label-caps text-secondary">tracked</span>
-      </div>
-    </article>
-
-    <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Avg Mastery Rate</span>
-      <div class="mt-sm flex items-baseline gap-sm">
-        <strong class="font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ masteryRate }}%</strong>
-        <span class="font-label-caps text-label-caps text-secondary">learned</span>
-      </div>
-    </article>
-
-    <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Words Learned</span>
-      <div class="mt-sm flex items-baseline gap-sm">
-        <strong class="font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ learnedWords }}</strong>
-        <span class="font-label-caps text-label-caps text-secondary">completed</span>
-      </div>
-    </article>
+  <div *ngIf="isLoading" class="rounded-3xl border border-outline-variant bg-surface p-lg text-center shadow-sm">
+    <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+    <p class="mt-md font-body-md text-body-md text-on-surface-variant">Loading analytics...</p>
   </div>
 
-  <div class="grid grid-cols-1 gap-md lg:grid-cols-2">
-    <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <h2 class="font-headline-sm text-headline-sm text-on-surface">Daily Active Users</h2>
-      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Seven-day activity shape for operational monitoring.</p>
-      <div class="mt-md flex h-72 items-end gap-xs rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
-        <div class="h-1/4 flex-1 rounded-t-xl bg-primary/20"></div>
-        <div class="h-1/3 flex-1 rounded-t-xl bg-primary/30"></div>
-        <div class="h-1/2 flex-1 rounded-t-xl bg-primary/40"></div>
-        <div class="h-2/3 flex-1 rounded-t-xl bg-primary/50"></div>
-        <div class="h-3/4 flex-1 rounded-t-xl bg-primary/70"></div>
-        <div class="h-full flex-1 rounded-t-xl bg-primary"></div>
-        <div class="h-4/5 flex-1 rounded-t-xl bg-primary/80"></div>
-      </div>
-    </section>
-
-    <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <h2 class="font-headline-sm text-headline-sm text-on-surface">CEFR Distribution</h2>
-      <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Current learner spread across vocabulary levels.</p>
-      <div class="mt-md flex min-h-72 flex-col items-center justify-center gap-md rounded-2xl border border-outline-variant bg-surface-container-lowest p-md sm:flex-row">
-        <div class="flex h-40 w-40 items-center justify-center rounded-full border-[22px] border-primary-container text-center" style="border-right-color: #6cf8bb; border-bottom-color: #ffddb8;">
-          <span class="font-headline-md text-headline-md text-on-surface">100%</span>
-        </div>
-        <div class="flex flex-col gap-sm">
-          <div class="flex items-center gap-xs font-body-md text-body-md text-on-surface-variant">
-            <span class="h-3 w-3 rounded-full bg-primary-container"></span>
-            A1-A2 Beginner 45%
-          </div>
-          <div class="flex items-center gap-xs font-body-md text-body-md text-on-surface-variant">
-            <span class="h-3 w-3 rounded-full bg-secondary-container"></span>
-            B1-B2 Intermediate 35%
-          </div>
-          <div class="flex items-center gap-xs font-body-md text-body-md text-on-surface-variant">
-            <span class="h-3 w-3 rounded-full bg-tertiary-fixed"></span>
-            C1-C2 Advanced 20%
-          </div>
-        </div>
-      </div>
-    </section>
+  <div *ngIf="!isLoading && loadError" class="rounded-3xl border border-error/30 bg-error-container p-md font-body-md text-body-md text-on-error-container">
+    {{ loadError }}
   </div>
 
-  <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-    <div class="flex flex-col justify-between gap-sm sm:flex-row sm:items-center">
-      <div>
-        <h2 class="font-headline-sm text-headline-sm text-on-surface">Top Learners</h2>
-        <p class="mt-xs font-body-md text-body-md text-on-surface-variant">High-performing learners this week.</p>
-      </div>
-      <button type="button" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary transition hover:bg-primary-dark">
-        Export
-      </button>
+  <ng-container *ngIf="!isLoading && stats">
+    <div class="grid grid-cols-1 gap-md md:grid-cols-3">
+      <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Total Vocabulary</span>
+        <div class="mt-sm flex items-baseline gap-sm">
+          <strong class="font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.totalWords }}</strong>
+          <span class="font-label-caps text-label-caps text-secondary">tracked</span>
+        </div>
+      </article>
+
+      <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Avg Mastery Rate</span>
+        <div class="mt-sm flex items-baseline gap-sm">
+          <strong class="font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.avgMasteryRate }}%</strong>
+          <span class="font-label-caps text-label-caps text-secondary">per learner</span>
+        </div>
+      </article>
+
+      <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Words Learned</span>
+        <div class="mt-sm flex items-baseline gap-sm">
+          <strong class="font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.learnedWordsTotal }}</strong>
+          <span class="font-label-caps text-label-caps text-secondary">completions</span>
+        </div>
+      </article>
     </div>
 
-    <div class="mt-md divide-y divide-outline-variant">
-      <div class="flex flex-col justify-between gap-sm py-sm sm:flex-row sm:items-center">
-        <div class="flex items-center gap-sm">
-          <div class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-fixed font-headline-sm text-headline-sm text-on-primary-fixed">SJ</div>
-          <div>
-            <p class="font-body-md text-body-md font-semibold text-on-surface">Sarah Jenkins</p>
-            <p class="font-label-caps text-label-caps text-on-surface-variant">Level B2 • English</p>
+    <div class="grid grid-cols-1 gap-md lg:grid-cols-2">
+      <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <h2 class="font-headline-sm text-headline-sm text-on-surface">Daily Active Users</h2>
+        <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Distinct learners with saved progress each day, last 7 days.</p>
+        <div class="mt-md flex h-72 items-end gap-xs rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
+          <div *ngFor="let point of stats.dailyActive" class="flex flex-1 flex-col items-center gap-xs">
+            <div class="w-full rounded-t-xl bg-primary" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' active'"></div>
+            <span class="font-label-caps text-label-caps text-on-surface-variant">{{ formatDay(point.date) }}</span>
           </div>
         </div>
-        <div class="w-full sm:w-40">
-          <div class="mb-1 flex justify-between font-label-caps text-label-caps"><span class="text-on-surface-variant">Mastery</span><span class="text-secondary">92%</span></div>
-          <div class="h-2 overflow-hidden rounded-full bg-surface-variant"><div class="h-full rounded-full bg-secondary" style="width: 92%"></div></div>
-        </div>
-      </div>
+      </section>
 
-      <div class="flex flex-col justify-between gap-sm py-sm sm:flex-row sm:items-center">
-        <div class="flex items-center gap-sm">
-          <div class="flex h-11 w-11 items-center justify-center rounded-full bg-secondary-container font-headline-sm text-headline-sm text-on-secondary-container">MK</div>
-          <div>
-            <p class="font-body-md text-body-md font-semibold text-on-surface">Mateo Kovacic</p>
-            <p class="font-label-caps text-label-caps text-on-surface-variant">Level A2 • English</p>
+      <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <h2 class="font-headline-sm text-headline-sm text-on-surface">CEFR Distribution</h2>
+        <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Vocabulary entries across CEFR levels.</p>
+        <div class="mt-md flex flex-col gap-sm">
+          <div *ngFor="let level of stats.levelDistribution">
+            <div class="mb-1 flex justify-between font-label-caps text-label-caps"><span class="text-on-surface-variant">{{ level.level }}</span><span class="text-secondary">{{ level.percent }}% ({{ level.count }})</span></div>
+            <div class="h-2 overflow-hidden rounded-full bg-surface-variant"><div class="h-full rounded-full bg-primary" [style.width.%]="level.percent"></div></div>
           </div>
+          <p *ngIf="stats.levelDistribution.length === 0" class="font-body-md text-body-md text-on-surface-variant">No vocabulary entries yet.</p>
         </div>
-        <div class="w-full sm:w-40">
-          <div class="mb-1 flex justify-between font-label-caps text-label-caps"><span class="text-on-surface-variant">Mastery</span><span class="text-secondary">88%</span></div>
-          <div class="h-2 overflow-hidden rounded-full bg-surface-variant"><div class="h-full rounded-full bg-secondary" style="width: 88%"></div></div>
-        </div>
-      </div>
-
-      <div class="flex flex-col justify-between gap-sm py-sm sm:flex-row sm:items-center">
-        <div class="flex items-center gap-sm">
-          <div class="flex h-11 w-11 items-center justify-center rounded-full bg-tertiary-fixed font-headline-sm text-headline-sm text-on-tertiary-fixed">YT</div>
-          <div>
-            <p class="font-body-md text-body-md font-semibold text-on-surface">Yuki Tanaka</p>
-            <p class="font-label-caps text-label-caps text-on-surface-variant">Level C1 • English</p>
-          </div>
-        </div>
-        <div class="w-full sm:w-40">
-          <div class="mb-1 flex justify-between font-label-caps text-label-caps"><span class="text-on-surface-variant">Mastery</span><span class="text-secondary">98%</span></div>
-          <div class="h-2 overflow-hidden rounded-full bg-surface-variant"><div class="h-full rounded-full bg-secondary" style="width: 98%"></div></div>
-        </div>
-      </div>
+      </section>
     </div>
-  </section>
+
+    <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+      <div class="flex flex-col justify-between gap-sm sm:flex-row sm:items-center">
+        <div>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Top Learners</h2>
+          <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Highest mastery by words learned.</p>
+        </div>
+        <button type="button" [disabled]="stats.topLearners.length === 0" (click)="exportTopLearners()" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
+          Export
+        </button>
+      </div>
+
+      <div class="mt-md divide-y divide-outline-variant">
+        <div *ngFor="let learner of stats.topLearners" class="flex flex-col justify-between gap-sm py-sm sm:flex-row sm:items-center">
+          <div class="flex items-center gap-sm">
+            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-fixed font-headline-sm text-headline-sm text-on-primary-fixed">{{ initials(learner.email) }}</div>
+            <div>
+              <p class="font-body-md text-body-md font-semibold text-on-surface">{{ learner.email }}</p>
+              <p class="font-label-caps text-label-caps text-on-surface-variant">{{ learner.learnedCount }} words learned</p>
+            </div>
+          </div>
+          <div class="w-full sm:w-40">
+            <div class="mb-1 flex justify-between font-label-caps text-label-caps"><span class="text-on-surface-variant">Mastery</span><span class="text-secondary">{{ learner.masteryPercent }}%</span></div>
+            <div class="h-2 overflow-hidden rounded-full bg-surface-variant"><div class="h-full rounded-full bg-secondary" [style.width.%]="learner.masteryPercent"></div></div>
+          </div>
+        </div>
+
+        <p *ngIf="stats.topLearners.length === 0" class="py-sm font-body-md text-body-md text-on-surface-variant">No learner progress recorded yet.</p>
+      </div>
+    </section>
+  </ng-container>
 </section>

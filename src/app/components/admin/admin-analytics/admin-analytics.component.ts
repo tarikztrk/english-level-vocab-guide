@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { VocabularyDataService } from '../../../services/vocabulary-data.service';
+import { AdminStats, AdminStatsService } from '../../../services/admin-stats.service';
 
 @Component({
   selector: 'app-admin-analytics',
@@ -7,19 +7,51 @@ import { VocabularyDataService } from '../../../services/vocabulary-data.service
   styleUrls: ['./admin-analytics.component.css']
 })
 export class AdminAnalyticsComponent implements OnInit {
-  totalWords: number = 0;
-  learnedWords: number = 0;
-  masteryRate: number = 0;
+  stats: AdminStats | null = null;
+  isLoading = true;
+  loadError = '';
 
-  constructor(private vocabService: VocabularyDataService) {}
+  constructor(private adminStatsService: AdminStatsService) {}
 
   async ngOnInit() {
-    const words = await this.vocabService.getWords();
-    this.totalWords = words.length;
-    this.learnedWords = words.filter(w => w.learned).length;
-    if (this.totalWords > 0) {
-      this.masteryRate = Math.round((this.learnedWords / this.totalWords) * 100);
+    try {
+      this.stats = await this.adminStatsService.getStats();
+    } catch (error) {
+      console.error('Could not load admin analytics', error);
+      this.loadError = 'Could not load analytics data.';
+    } finally {
+      this.isLoading = false;
     }
   }
-}
 
+  get maxDailyActive(): number {
+    if (!this.stats || this.stats.dailyActive.length === 0) return 1;
+    return Math.max(1, ...this.stats.dailyActive.map((d) => d.count));
+  }
+
+  formatDay(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' });
+  }
+
+  initials(email: string): string {
+    const name = email.split('@')[0];
+    return name.slice(0, 2).toUpperCase();
+  }
+
+  exportTopLearners() {
+    if (!this.stats || this.stats.topLearners.length === 0) return;
+
+    const rows = [
+      ['Email', 'Words Learned', 'Mastery %'],
+      ...this.stats.topLearners.map((learner) => [learner.email, String(learner.learnedCount), String(learner.masteryPercent)])
+    ];
+    const csv = rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'top-learners.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+}

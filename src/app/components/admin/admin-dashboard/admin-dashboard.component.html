@@ -25,99 +25,103 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 gap-md md:grid-cols-2 lg:grid-cols-4">
-    <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <div class="flex items-start justify-between gap-sm">
-        <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Total Users</span>
-        <span class="material-symbols-outlined rounded-xl bg-primary-fixed p-xs text-primary">groups</span>
-      </div>
-      <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">12,450</strong>
-      <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-secondary">
-        <span class="material-symbols-outlined text-[16px]">trending_up</span>
-        +5.2% this week
-      </p>
-    </article>
-
-    <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <div class="flex items-start justify-between gap-sm">
-        <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Active Today</span>
-        <span class="material-symbols-outlined rounded-xl bg-secondary-container p-xs text-on-secondary-container">bolt</span>
-      </div>
-      <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">1,892</strong>
-      <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-secondary">
-        <span class="material-symbols-outlined text-[16px]">trending_up</span>
-        +12% vs yesterday
-      </p>
-    </article>
-
-    <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <div class="flex items-start justify-between gap-sm">
-        <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Vocabulary Count</span>
-        <span class="material-symbols-outlined rounded-xl bg-tertiary-fixed p-xs text-on-tertiary-fixed">menu_book</span>
-      </div>
-      <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ vocabularyCount }}</strong>
-      <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-outline">
-        <span class="material-symbols-outlined text-[16px]">database</span>
-        Synced from vocabulary service
-      </p>
-    </article>
-
-    <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <div class="flex items-start justify-between gap-sm">
-        <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Avg Mastery Rate</span>
-        <span class="material-symbols-outlined rounded-xl bg-primary-container p-xs text-on-primary-container">school</span>
-      </div>
-      <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ avgMasteryRate }}%</strong>
-      <div class="mt-sm h-3 overflow-hidden rounded-full bg-surface-variant">
-        <div class="h-full rounded-full bg-secondary" [style.width.%]="avgMasteryRate"></div>
-      </div>
-    </article>
+  <div *ngIf="isLoading" class="rounded-3xl border border-outline-variant bg-surface p-lg text-center shadow-sm">
+    <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+    <p class="mt-md font-body-md text-body-md text-on-surface-variant">Loading dashboard...</p>
   </div>
 
-  <div class="grid grid-cols-1 gap-md lg:grid-cols-3">
-    <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)] lg:col-span-2">
-      <div class="flex flex-col justify-between gap-sm sm:flex-row sm:items-center">
-        <div>
-          <h2 class="font-headline-sm text-headline-sm text-on-surface">Vocabulary Performance</h2>
-          <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Weekly completion signal by learner activity.</p>
-        </div>
-        <select class="h-10 rounded-xl border border-outline-variant bg-surface-container-low px-sm font-body-md text-body-md text-on-surface">
-          <option>Last 7 Days</option>
-          <option>Last 30 Days</option>
-        </select>
-      </div>
-
-      <div class="mt-md flex h-72 items-end gap-sm rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
-        <div class="h-[40%] flex-1 rounded-t-xl bg-primary-fixed-dim"></div>
-        <div class="h-[65%] flex-1 rounded-t-xl bg-primary-fixed-dim"></div>
-        <div class="h-[85%] flex-1 rounded-t-xl bg-primary shadow-[0_0_20px_rgba(26,86,219,0.28)]"></div>
-        <div class="h-[55%] flex-1 rounded-t-xl bg-primary-fixed-dim"></div>
-        <div class="h-[70%] flex-1 rounded-t-xl bg-primary-fixed-dim"></div>
-        <div class="h-[76%] flex-1 rounded-t-xl bg-primary-fixed-dim"></div>
-        <div class="h-[62%] flex-1 rounded-t-xl bg-primary-fixed-dim"></div>
-      </div>
-    </section>
-
-    <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-      <div class="flex items-center justify-between gap-sm">
-        <h2 class="font-headline-sm text-headline-sm text-on-surface">Review Queue</h2>
-        <a routerLink="/admin/vocabulary" class="font-label-caps text-label-caps uppercase text-primary hover:text-primary-dark">Open</a>
-      </div>
-
-      <div class="mt-md flex flex-col gap-sm">
-        <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
-          <p class="font-body-md text-body-md font-semibold text-on-surface">Flagged translations</p>
-          <p class="mt-xs font-label-caps text-label-caps text-outline">3 items need content review</p>
-        </div>
-        <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
-          <p class="font-body-md text-body-md font-semibold text-on-surface">Missing examples</p>
-          <p class="mt-xs font-label-caps text-label-caps text-outline">12 words can be improved</p>
-        </div>
-        <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
-          <p class="font-body-md text-body-md font-semibold text-on-surface">Level distribution</p>
-          <p class="mt-xs font-label-caps text-label-caps text-outline">Check advanced-level coverage</p>
-        </div>
-      </div>
-    </section>
+  <div *ngIf="!isLoading && loadError" class="rounded-3xl border border-error/30 bg-error-container p-md font-body-md text-body-md text-on-error-container">
+    {{ loadError }}
   </div>
+
+  <ng-container *ngIf="!isLoading && stats">
+    <div class="grid grid-cols-1 gap-md md:grid-cols-2 lg:grid-cols-4">
+      <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <div class="flex items-start justify-between gap-sm">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Total Users</span>
+          <span class="material-symbols-outlined rounded-xl bg-primary-fixed p-xs text-primary">groups</span>
+        </div>
+        <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.totalUsers }}</strong>
+        <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-outline">
+          <span class="material-symbols-outlined text-[16px]">badge</span>
+          Registered accounts
+        </p>
+      </article>
+
+      <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <div class="flex items-start justify-between gap-sm">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Active Today</span>
+          <span class="material-symbols-outlined rounded-xl bg-secondary-container p-xs text-on-secondary-container">bolt</span>
+        </div>
+        <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.activeToday }}</strong>
+        <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-outline">
+          <span class="material-symbols-outlined text-[16px]">history</span>
+          Saved progress today
+        </p>
+      </article>
+
+      <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <div class="flex items-start justify-between gap-sm">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Vocabulary Count</span>
+          <span class="material-symbols-outlined rounded-xl bg-tertiary-fixed p-xs text-on-tertiary-fixed">menu_book</span>
+        </div>
+        <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.totalWords }}</strong>
+        <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-outline">
+          <span class="material-symbols-outlined text-[16px]">database</span>
+          Synced from vocabulary service
+        </p>
+      </article>
+
+      <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <div class="flex items-start justify-between gap-sm">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Avg Mastery Rate</span>
+          <span class="material-symbols-outlined rounded-xl bg-primary-container p-xs text-on-primary-container">school</span>
+        </div>
+        <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.avgMasteryRate }}%</strong>
+        <div class="mt-sm h-3 overflow-hidden rounded-full bg-surface-variant">
+          <div class="h-full rounded-full bg-secondary" [style.width.%]="stats.avgMasteryRate"></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="grid grid-cols-1 gap-md lg:grid-cols-3">
+      <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)] lg:col-span-2">
+        <div class="flex flex-col justify-between gap-sm sm:flex-row sm:items-center">
+          <div>
+            <h2 class="font-headline-sm text-headline-sm text-on-surface">Learner Activity</h2>
+            <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Distinct learners with saved progress, last 7 days.</p>
+          </div>
+        </div>
+
+        <div class="mt-md flex h-72 items-end gap-sm rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
+          <div *ngFor="let point of stats.dailyActive" class="flex flex-1 flex-col items-center gap-xs">
+            <div class="w-full rounded-t-xl bg-primary-fixed-dim" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' active'"></div>
+            <span class="font-label-caps text-label-caps text-on-surface-variant">{{ formatDay(point.date) }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+        <div class="flex items-center justify-between gap-sm">
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Review Queue</h2>
+          <a routerLink="/admin/vocabulary" class="font-label-caps text-label-caps uppercase text-primary hover:text-primary-dark">Open</a>
+        </div>
+
+        <div class="mt-md flex flex-col gap-sm">
+          <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
+            <p class="font-body-md text-body-md font-semibold text-on-surface">Missing example sentences</p>
+            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ stats.missingExamplesCount }} words can be improved</p>
+          </div>
+          <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
+            <p class="font-body-md text-body-md font-semibold text-on-surface">Missing audio</p>
+            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ stats.missingAudioCount }} words have no audio file</p>
+          </div>
+          <div *ngIf="lowestCoverageLevel" class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
+            <p class="font-body-md text-body-md font-semibold text-on-surface">Lowest CEFR coverage</p>
+            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ lowestCoverageLevel.level }} has only {{ lowestCoverageLevel.count }} words</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </ng-container>
 </section>
