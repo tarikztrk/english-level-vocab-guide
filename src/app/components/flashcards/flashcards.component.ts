@@ -13,6 +13,7 @@ interface Flashcard {
   pronunciation: string;
   example: string;
   audioUrl?: string;
+  learned: boolean;
 }
 
 @Component({
@@ -39,6 +40,7 @@ export class FlashcardsComponent implements OnInit {
       pronunciation: "/ɪnˈhɪər.ənt/",
       example: "The risks inherent in the investment were carefully weighed.",
       audioUrl: "",
+      learned: false,
     },
     {
       id: 2,
@@ -48,6 +50,7 @@ export class FlashcardsComponent implements OnInit {
       pronunciation: "/nɪˈɡoʊ.ʃi.eɪt/",
       example: "They agreed to negotiate the contract terms next week.",
       audioUrl: "",
+      learned: false,
     },
     {
       id: 3,
@@ -57,6 +60,7 @@ export class FlashcardsComponent implements OnInit {
       pronunciation: "/æmˈbɪɡ.ju.əs/",
       example: "His answer was deliberately ambiguous.",
       audioUrl: "",
+      learned: false,
     },
     {
       id: 4,
@@ -66,6 +70,7 @@ export class FlashcardsComponent implements OnInit {
       pronunciation: "/ˈɛv.ri.deɪ/",
       example: "I wear these shoes for everyday use.",
       audioUrl: "",
+      learned: false,
     },
     {
       id: 5,
@@ -75,6 +80,7 @@ export class FlashcardsComponent implements OnInit {
       pronunciation: "/kəˈlæb.ə.reɪt/",
       example: "They collaborate on several international projects.",
       audioUrl: "",
+      learned: false,
     },
   ];
   currentIndex = 0;
@@ -100,11 +106,48 @@ export class FlashcardsComponent implements OnInit {
   }
 
   listenToPronunciation() {
-    if (!this.currentCard) return;
-    // Placeholder for future audio playback integration.
-    console.log(
-      `Listen to ${this.currentCard.front}: ${this.currentCard.pronunciation}`,
-    );
+    const card = this.currentCard;
+    if (!card) return;
+
+    if (card.audioUrl) {
+      new Audio(card.audioUrl).play().catch((error) => {
+        console.error("Could not play audio file", error);
+        this.speak(card.front);
+      });
+      return;
+    }
+
+    this.speak(card.front);
+  }
+
+  toggleLearned(card: Flashcard) {
+    card.learned = !card.learned;
+
+    if (card.id) {
+      void this.vocabularyDataService
+        .saveProgress(card.id, { learned: card.learned })
+        .catch((error) => {
+          card.learned = !card.learned;
+          this.showProgressMessage(
+            error instanceof AuthenticationRequiredError
+              ? error.message
+              : "Could not save learned state. Please try again.",
+          );
+          console.error("Could not save learned state", error);
+        });
+    }
+  }
+
+  private speak(text: string) {
+    if (!("speechSynthesis" in window)) {
+      this.showProgressMessage("Audio playback is not supported in this browser.");
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
   }
 
   nextCard() {
@@ -149,6 +192,7 @@ export class FlashcardsComponent implements OnInit {
               pronunciation: item.phonetic,
               example: item.example || `Example for ${item.word}`,
               audioUrl: item.audioUrl,
+              learned: item.learned,
             }))
           : this.fallbackCards;
     } catch (error) {
