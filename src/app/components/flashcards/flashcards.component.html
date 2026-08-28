@@ -105,7 +105,8 @@
             >
             <div class="mx-auto mt-6 w-full max-w-2xl perspective">
               <div
-                class="relative mx-auto h-80 rounded-[2rem] transition-transform duration-500 ease-in-out flip-card-inner sm:h-72"
+                (click)="flipCard()"
+                class="relative mx-auto h-80 cursor-pointer rounded-[2rem] transition-transform duration-500 ease-in-out flip-card-inner sm:h-72"
                 [ngClass]="{ 'rotate-y-180': isFlipped }"
               >
                 <div
@@ -137,7 +138,7 @@
                   </p>
                   <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
                     <button
-                      (click)="listenToPronunciation()"
+                      (click)="$event.stopPropagation(); listenToPronunciation()"
                       [attr.aria-label]="currentCard.front + ' kelimesini dinle'"
                       class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container-low"
                     >
@@ -145,7 +146,7 @@
                       Dinle
                     </button>
                     <button
-                      (click)="toggleLearned(currentCard)"
+                      (click)="$event.stopPropagation(); toggleLearned(currentCard)"
                       [attr.aria-pressed]="currentCard.learned"
                       [ngClass]="currentCard.learned ? 'bg-secondary text-white' : 'bg-white text-primary'"
                       class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition hover:opacity-90"
@@ -177,26 +178,6 @@
               class="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white transition hover:bg-primary-dark"
             >
               Sonraki
-            </button>
-          </div>
-        </div>
-
-        <div
-          class="mt-8 rounded-3xl border border-outline-variant/20 bg-white p-6 shadow-sm"
-        >
-          <h3 class="text-lg font-bold">Hızlı Geçiş</h3>
-          <div class="mt-4 flex flex-wrap gap-3">
-            <button
-              *ngFor="let card of cards; let index = index"
-              (click)="goToCard(index)"
-              [ngClass]="{
-                'bg-primary text-white': currentIndex === index,
-                'bg-surface-container-low text-on-surface-variant':
-                  currentIndex !== index,
-              }"
-              class="rounded-full px-3 py-2 text-sm font-semibold transition"
-            >
-              {{ index + 1 }}
             </button>
           </div>
         </div>

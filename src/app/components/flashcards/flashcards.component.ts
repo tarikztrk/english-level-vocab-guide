@@ -145,11 +145,6 @@ export class FlashcardsComponent implements OnInit {
     this.isFlipped = false;
   }
 
-  goToCard(index: number) {
-    this.currentIndex = index;
-    this.isFlipped = false;
-  }
-
   dismissProgressMessage() {
     this.progressMessage = "";
 

@@ -15,7 +15,7 @@
           <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Ana Sayfa</a>
           <a routerLink="/list" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Kelime Listesi</a>
           <a routerLink="/flashcards" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Bilgi Kartları</a>
-          <a *ngIf="isAdmin$ | async" routerLink="/admin/dashboard" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Yönetim</a>
+          <a *ngIf="isAdmin$ | async" routerLink="/admin/dashboard" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Yönetim Paneli</a>
         </nav>
 
         <ng-container *ngIf="user$ | async as user; else signedOut">
