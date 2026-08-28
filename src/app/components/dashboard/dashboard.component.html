@@ -130,7 +130,7 @@
         </div>
 
         <div *ngIf="!isLoading" class="grid gap-4">
-          <article *ngFor="let item of filteredVocabulary" class="rounded-3xl border bg-surface p-6 shadow-sm transition" [ngClass]="isSelected(item) ? 'border-primary/40 ring-2 ring-primary/10' : 'border-outline-variant/20'">
+          <article *ngFor="let item of paginatedVocabulary" class="rounded-3xl border bg-surface p-6 shadow-sm transition" [ngClass]="isSelected(item) ? 'border-primary/40 ring-2 ring-primary/10' : 'border-outline-variant/20'">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div class="flex gap-4">
                 <input type="checkbox" [checked]="isSelected(item)" (change)="toggleSelection(item)" [attr.aria-label]="item.word + ' kelimesini seç'" class="mt-1.5 h-4 w-4 shrink-0 rounded border-outline-variant text-primary focus:ring-primary/50" />
@@ -157,6 +157,23 @@
               </div>
             </div>
           </article>
+        </div>
+
+        <div *ngIf="!isLoading && filteredVocabulary.length > 0" class="flex flex-col justify-between gap-4 rounded-3xl border border-outline-variant/20 bg-surface p-5 shadow-sm sm:flex-row sm:items-center">
+          <span class="text-sm font-semibold text-on-surface-variant">
+            {{ filteredVocabulary.length }} kelimeden {{ firstItemIndex }}-{{ lastItemIndex }} arası gösteriliyor
+          </span>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" (click)="prevPage()" [disabled]="currentPage === 1" class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 p-2 text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+            </button>
+            <button type="button" *ngFor="let page of getVisiblePages()" (click)="setPage(page)" [attr.aria-current]="page === currentPage ? 'page' : null" [ngClass]="page === currentPage ? 'bg-primary text-white' : 'border border-outline-variant/50 text-primary hover:bg-surface-container'" class="rounded-full px-4 py-2 text-sm font-semibold transition">
+              {{ page }}
+            </button>
+            <button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages" class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 p-2 text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50">
+              <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+            </button>
+          </div>
         </div>
       </section>
     </div>

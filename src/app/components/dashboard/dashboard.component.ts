@@ -46,6 +46,9 @@ export class DashboardComponent implements OnInit {
   currentMastery = 0;
   activeLevelLabel = '';
 
+  currentPage = 1;
+  pageSize = 10;
+
   wordOfTheDay: VocabularyWord | null = null;
   selectedIds = new Set<number>();
   isBulkSaving = false;
@@ -79,23 +82,67 @@ export class DashboardComponent implements OnInit {
     this.currentTotal = this.filteredVocabulary.length;
     this.currentLearned = this.filteredVocabulary.filter(item => item.learned).length;
     this.currentMastery = this.currentTotal > 0 ? Math.round((this.currentLearned / this.currentTotal) * 100) : 0;
+    this.currentPage = Math.min(this.currentPage, this.totalPages);
 
     // Drop selections that the current filter no longer shows.
     const visibleIds = new Set(this.filteredVocabulary.map((item) => item.id));
     this.selectedIds = new Set(Array.from(this.selectedIds).filter((id) => visibleIds.has(id)));
   }
 
+  get paginatedVocabulary(): VocabularyWord[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredVocabulary.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredVocabulary.length / this.pageSize) || 1;
+  }
+
+  get firstItemIndex(): number {
+    return this.filteredVocabulary.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get lastItemIndex(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredVocabulary.length);
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  setPage(page: number) {
+    this.currentPage = page;
+  }
+
+  /** Up to 5 page numbers centered on the current page. */
+  getVisiblePages(): number[] {
+    const pages: number[] = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
   selectTab(label: string) {
     this.tabs = this.tabs.map((tab) => ({ ...tab, active: tab.label === label }));
+    this.currentPage = 1;
     this.onFilterChange();
   }
 
   selectCategory(category: string) {
     this.selectedCategory = category;
+    this.currentPage = 1;
     this.onFilterChange();
   }
 
   onSearchChange() {
+    this.currentPage = 1;
     this.onFilterChange();
   }
 

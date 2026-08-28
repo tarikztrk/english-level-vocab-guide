@@ -32,6 +32,9 @@ export class ListViewComponent implements OnInit {
   currentLearned = 0;
   currentMastery = 0;
 
+  currentPage = 1;
+  pageSize = 10;
+
   progressMessage = '';
   isLoading = true;
   loadError = '';
@@ -76,24 +79,69 @@ export class ListViewComponent implements OnInit {
     this.currentTotal = filtered.length;
     this.currentLearned = filtered.filter(item => item.learned).length;
     this.currentMastery = this.currentTotal > 0 ? Math.round((this.currentLearned / this.currentTotal) * 100) : 0;
+    this.currentPage = Math.min(this.currentPage, this.totalPages);
+  }
+
+  get paginatedWords(): VocabularyWord[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredWords.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredWords.length / this.pageSize) || 1;
+  }
+
+  get firstItemIndex(): number {
+    return this.filteredWords.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get lastItemIndex(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredWords.length);
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  setPage(page: number) {
+    this.currentPage = page;
+  }
+
+  /** Up to 5 page numbers centered on the current page. */
+  getVisiblePages(): number[] {
+    const pages: number[] = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   onSearchChange() {
+    this.currentPage = 1;
     this.onFilterChange();
   }
 
   selectCategory(category: string) {
     this.selectedCategory = category;
+    this.currentPage = 1;
     this.onFilterChange();
   }
 
   setSort(option: string) {
     this.selectedSort = option;
+    this.currentPage = 1;
     this.onFilterChange();
   }
 
   toggleBookmarkedOnly() {
     this.showBookmarkedOnly = !this.showBookmarkedOnly;
+    this.currentPage = 1;
     this.onFilterChange();
   }
 
@@ -103,6 +151,7 @@ export class ListViewComponent implements OnInit {
     this.selectedCategory = 'Tümü';
     this.showBookmarkedOnly = false;
     this.selectedSort = 'new';
+    this.currentPage = 1;
     this.onFilterChange();
   }
 
