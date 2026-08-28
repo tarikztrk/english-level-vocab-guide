@@ -18,6 +18,7 @@ export class ListViewComponent implements OnInit {
   selectedCategory = 'All';
   selectedSort = 'A-Z';
   sortOptions = ['A-Z', 'Learned', 'New'];
+  showBookmarkedOnly = false;
 
   categories: string[] = ['All'];
   filteredWords: VocabularyWord[] = [];
@@ -48,12 +49,12 @@ export class ListViewComponent implements OnInit {
   }
 
   onFilterChange() {
-    const query = this.search.trim().toLowerCase();
+    const term = this.search.trim().toLowerCase();
     let filtered = this.vocabulary.filter((item) => {
       const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;
-      const term = Math.max(0, query.length) === 0 ? '' : query;
       const matchesSearch = term === '' || item.word.toLowerCase().includes(term) || item.meaning.toLowerCase().includes(term);
-      return matchesCategory && matchesSearch;
+      const matchesBookmark = !this.showBookmarkedOnly || item.bookmarked;
+      return matchesCategory && matchesSearch && matchesBookmark;
     });
 
     filtered = filtered.sort((a, b) => {
@@ -84,6 +85,48 @@ export class ListViewComponent implements OnInit {
   setSort(option: string) {
     this.selectedSort = option;
     this.onFilterChange();
+  }
+
+  toggleBookmarkedOnly() {
+    this.showBookmarkedOnly = !this.showBookmarkedOnly;
+    this.onFilterChange();
+  }
+
+  /** Clears filters and surfaces the words that are still unlearned. */
+  reviewDifficultWords() {
+    this.search = '';
+    this.selectedCategory = 'All';
+    this.showBookmarkedOnly = false;
+    this.selectedSort = 'New';
+    this.onFilterChange();
+  }
+
+  exportList() {
+    if (this.filteredWords.length === 0) {
+      return;
+    }
+
+    const rows = [
+      ['Word', 'Phonetic', 'Meaning', 'Level', 'Category', 'Learned', 'Bookmarked'],
+      ...this.filteredWords.map((word) => [
+        word.word,
+        word.phonetic,
+        word.meaning,
+        word.level,
+        word.category,
+        word.learned ? 'yes' : 'no',
+        word.bookmarked ? 'yes' : 'no'
+      ])
+    ];
+
+    const csv = rows.map((row) => row.map((cell) => `"${(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'vocabulary-list.csv';
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   listen(word: VocabularyWord) {

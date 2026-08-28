@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { VocabularyDataService, VocabularyWord } from '../../../services/vocabulary-data.service';
 
 type WordFormModel = Omit<VocabularyWord, 'id' | 'learned' | 'bookmarked'>;
@@ -7,11 +7,13 @@ const EMPTY_FORM: WordFormModel = {
   word: '',
   phonetic: '',
   meaning: '',
-  level: 'b1',
-  category: 'academic',
+  level: 'B1',
+  category: 'Academic',
   example: '',
   audioUrl: ''
 };
+
+const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 @Component({
   selector: 'app-admin-vocabulary',
@@ -35,11 +37,25 @@ export class AdminVocabularyComponent implements OnInit {
   isSaving = false;
   errorMessage = '';
 
+  readonly cefrLevels = CEFR_LEVELS;
+  levelOptions: string[] = [];
+  categoryOptions: string[] = [];
+
   constructor(private vocabService: VocabularyDataService) {}
 
   async ngOnInit() {
     this.words = await this.vocabService.getWords();
+    this.refreshOptions();
     this.applyFilters();
+  }
+
+  /**
+   * Filter dropdowns are built from the words that actually exist, so a level
+   * or category can never be offered when nothing matches it.
+   */
+  private refreshOptions() {
+    this.levelOptions = Array.from(new Set(this.words.map((w) => w.level).filter(Boolean))).sort();
+    this.categoryOptions = Array.from(new Set(this.words.map((w) => w.category).filter(Boolean))).sort();
   }
 
   openAddModal() {
@@ -68,6 +84,13 @@ export class AdminVocabularyComponent implements OnInit {
     this.isModalOpen = false;
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this.isModalOpen && !this.isSaving) {
+      this.closeModal();
+    }
+  }
+
   async saveWord() {
     if (!this.formModel.word.trim() || !this.formModel.meaning.trim()) {
       this.errorMessage = 'Word and meaning are required.';
@@ -86,6 +109,7 @@ export class AdminVocabularyComponent implements OnInit {
         this.words = [...this.words, created];
       }
 
+      this.refreshOptions();
       this.applyFilters();
       this.isModalOpen = false;
     } catch (error) {
@@ -104,6 +128,7 @@ export class AdminVocabularyComponent implements OnInit {
     try {
       await this.vocabService.deleteWord(word.id);
       this.words = this.words.filter((w) => w.id !== word.id);
+      this.refreshOptions();
       this.applyFilters();
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Could not delete this word.');

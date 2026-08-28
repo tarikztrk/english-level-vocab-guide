@@ -27,25 +27,18 @@
     <div class="grid grid-cols-1 gap-sm md:grid-cols-12">
       <label class="relative md:col-span-6">
         <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
-        <input [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" class="h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-xl pr-sm font-body-md text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Search word or meaning..." type="text" />
+        <span class="sr-only">Search words</span>
+        <input [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" class="h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-xl pr-sm font-body-md text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Search word or meaning..." type="text" />
       </label>
 
-      <select [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 md:col-span-3">
+      <select [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()" aria-label="Filter by level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
         <option value="">All Levels</option>
-        <option value="a1">A1 Beginner</option>
-        <option value="a2">A2 Elementary</option>
-        <option value="b1">B1 Intermediate</option>
-        <option value="b2">B2 Upper Intermediate</option>
-        <option value="c1">C1 Advanced</option>
-        <option value="c2">C2 Mastery</option>
+        <option *ngFor="let level of levelOptions" [value]="level">{{ level }}</option>
       </select>
 
-      <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 md:col-span-3">
+      <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()" aria-label="Filter by category" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
         <option value="">All Categories</option>
-        <option value="academic">Academic</option>
-        <option value="business">Business</option>
-        <option value="casual">Casual/Daily</option>
-        <option value="idioms">Idioms</option>
+        <option *ngFor="let category of categoryOptions" [value]="category">{{ category }}</option>
       </select>
     </div>
   </div>
@@ -93,11 +86,11 @@
               </span>
             </td>
             <td class="px-sm py-sm text-right">
-              <button type="button" (click)="openEditModal(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" title="Edit">
-                <span class="material-symbols-outlined text-[20px]">edit</span>
+              <button type="button" (click)="openEditModal(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" [attr.aria-label]="'Edit ' + word.word" title="Edit">
+                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">edit</span>
               </button>
-              <button type="button" (click)="deleteWord(word)" class="rounded-lg p-xs text-outline transition hover:bg-error-container hover:text-error" title="Delete">
-                <span class="material-symbols-outlined text-[20px]">delete</span>
+              <button type="button" (click)="deleteWord(word)" class="rounded-lg p-xs text-outline transition hover:bg-error-container hover:text-error" [attr.aria-label]="'Delete ' + word.word" title="Delete">
+                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">delete</span>
               </button>
             </td>
           </tr>
@@ -128,63 +121,56 @@
     </div>
   </div>
 
-  <div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center bg-on-surface/40 px-gutter py-lg" (click)="closeModal()">
-    <div class="w-full max-w-lg rounded-2xl bg-surface p-md shadow-[0_24px_64px_rgba(21,28,39,0.2)]" (click)="$event.stopPropagation()">
+  <div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-on-surface/40 px-gutter py-lg" (click)="closeModal()">
+    <div class="my-auto max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-surface p-md shadow-[0_24px_64px_rgba(21,28,39,0.2)]" role="dialog" aria-modal="true" aria-labelledby="word-modal-title" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between">
-        <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ editingWord ? 'Edit Word' : 'Add Word' }}</h2>
-        <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" (click)="closeModal()">
-          <span class="material-symbols-outlined text-[20px]">close</span>
+        <h2 id="word-modal-title" class="font-headline-sm text-headline-sm text-on-surface">{{ editingWord ? 'Edit Word' : 'Add Word' }}</h2>
+        <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" aria-label="Close dialog" (click)="closeModal()">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
         </button>
       </div>
 
       <form class="mt-md flex flex-col gap-sm" (ngSubmit)="saveWord()">
         <label class="flex flex-col gap-1">
           <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Word</span>
-          <input [(ngModel)]="formModel.word" name="word" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+          <input [(ngModel)]="formModel.word" name="word" type="text" required autofocus class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <label class="flex flex-col gap-1">
           <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Phonetic</span>
-          <input [(ngModel)]="formModel.phonetic" name="phonetic" type="text" placeholder="/ɪɡˈzæmpəl/" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+          <input [(ngModel)]="formModel.phonetic" name="phonetic" type="text" placeholder="/ɪɡˈzæmpəl/" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <label class="flex flex-col gap-1">
           <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Meaning</span>
-          <input [(ngModel)]="formModel.meaning" name="meaning" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+          <input [(ngModel)]="formModel.meaning" name="meaning" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <div class="grid grid-cols-2 gap-sm">
           <label class="flex flex-col gap-1">
             <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Level</span>
-            <select [(ngModel)]="formModel.level" name="level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
-              <option value="a1">A1 Beginner</option>
-              <option value="a2">A2 Elementary</option>
-              <option value="b1">B1 Intermediate</option>
-              <option value="b2">B2 Upper Intermediate</option>
-              <option value="c1">C1 Advanced</option>
-              <option value="c2">C2 Mastery</option>
+            <select [(ngModel)]="formModel.level" name="level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20">
+              <option *ngFor="let level of cefrLevels" [value]="level">{{ level }}</option>
             </select>
           </label>
 
           <label class="flex flex-col gap-1">
             <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Category</span>
-            <select [(ngModel)]="formModel.category" name="category" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
-              <option value="academic">Academic</option>
-              <option value="business">Business</option>
-              <option value="casual">Casual/Daily</option>
-              <option value="idioms">Idioms</option>
-            </select>
+            <input [(ngModel)]="formModel.category" name="category" type="text" list="category-options" placeholder="Academic" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
+            <datalist id="category-options">
+              <option *ngFor="let category of categoryOptions" [value]="category"></option>
+            </datalist>
           </label>
         </div>
 
         <label class="flex flex-col gap-1">
           <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Example sentence</span>
-          <textarea [(ngModel)]="formModel.example" name="example" rows="2" class="rounded-xl border border-outline-variant bg-surface-container-lowest px-sm py-xs font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"></textarea>
+          <textarea [(ngModel)]="formModel.example" name="example" rows="2" class="rounded-xl border border-outline-variant bg-surface-container-lowest px-sm py-xs font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20"></textarea>
         </label>
 
         <label class="flex flex-col gap-1">
           <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Audio URL</span>
-          <input [(ngModel)]="formModel.audioUrl" name="audioUrl" type="text" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+          <input [(ngModel)]="formModel.audioUrl" name="audioUrl" type="text" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <p *ngIf="errorMessage" class="font-body-md text-body-md text-error">{{ errorMessage }}</p>

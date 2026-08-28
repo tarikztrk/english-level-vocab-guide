@@ -37,12 +37,6 @@ export class DashboardComponent implements OnInit {
   loadError = '';
   private progressMessageTimeout?: ReturnType<typeof setTimeout>;
 
-  quickActions = [
-    { title: 'Flashcards', description: 'Review 10 words in 5 minutes', icon: 'view_carousel' },
-    { title: 'Listening', description: 'Hear native pronunciation', icon: 'volume_up' },
-    { title: 'Practice Quiz', description: 'Test your recall instantly', icon: 'quiz' }
-  ];
-
   vocabularyItems: VocabularyWord[] = [];
   filteredVocabulary: VocabularyWord[] = [];
   categories: string[] = ['All'];
@@ -51,6 +45,10 @@ export class DashboardComponent implements OnInit {
   currentLearned = 0;
   currentMastery = 0;
   activeLevelLabel = '';
+
+  wordOfTheDay: VocabularyWord | null = null;
+  selectedIds = new Set<number>();
+  isBulkSaving = false;
 
   private readonly fallbackVocabulary: VocabularyWord[] = [
     { id: 1, word: 'Inherent', phonetic: '/ɪnˈhɪər.ənt/', meaning: 'Doğasında olan, kalıtımsal', level: 'B1', category: 'Academic', example: '', audioUrl: '', learned: false, bookmarked: false },
@@ -67,13 +65,13 @@ export class DashboardComponent implements OnInit {
   onFilterChange() {
     const activeTab = this.tabs.find(t => t.active);
     const activeTabLabel = activeTab?.label;
-    
+
     this.activeLevelLabel = !activeTab || activeTabLabel === 'All Levels' ? '' : (activeTabLabel + ' ');
 
     this.filteredVocabulary = this.vocabularyItems.filter((item) => {
       const matchesLevel = !activeTabLabel || activeTabLabel === 'All Levels' || item.level === activeTabLabel;
       const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;
-      const term = Math.max(0, this.search.trim().length) === 0 ? '' : this.search.toLowerCase();
+      const term = this.search.trim().toLowerCase();
       const matchesSearch = term === '' || item.word.toLowerCase().includes(term) || item.meaning.toLowerCase().includes(term);
       return matchesLevel && matchesCategory && matchesSearch;
     });
@@ -81,6 +79,10 @@ export class DashboardComponent implements OnInit {
     this.currentTotal = this.filteredVocabulary.length;
     this.currentLearned = this.filteredVocabulary.filter(item => item.learned).length;
     this.currentMastery = this.currentTotal > 0 ? Math.round((this.currentLearned / this.currentTotal) * 100) : 0;
+
+    // Drop selections that the current filter no longer shows.
+    const visibleIds = new Set(this.filteredVocabulary.map((item) => item.id));
+    this.selectedIds = new Set(Array.from(this.selectedIds).filter((id) => visibleIds.has(id)));
   }
 
   selectTab(label: string) {
@@ -117,6 +119,86 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  toggleBookmark(item: VocabularyWord) {
+    item.bookmarked = !item.bookmarked;
+
+    if (item.id) {
+      void this.vocabularyDataService.saveProgress(item.id, { bookmarked: item.bookmarked }).catch((error) => {
+        item.bookmarked = !item.bookmarked;
+        this.showProgressMessage(error instanceof AuthenticationRequiredError
+          ? error.message
+          : 'Could not save bookmark state. Please try again.');
+        console.error('Could not save bookmark state', error);
+      });
+    }
+  }
+
+  isSelected(item: VocabularyWord) {
+    return this.selectedIds.has(item.id);
+  }
+
+  toggleSelection(item: VocabularyWord) {
+    if (this.selectedIds.has(item.id)) {
+      this.selectedIds.delete(item.id);
+    } else {
+      this.selectedIds.add(item.id);
+    }
+  }
+
+  get allVisibleSelected(): boolean {
+    return this.filteredVocabulary.length > 0 && this.selectedIds.size === this.filteredVocabulary.length;
+  }
+
+  toggleSelectAll() {
+    if (this.allVisibleSelected) {
+      this.selectedIds.clear();
+      return;
+    }
+    this.selectedIds = new Set(this.filteredVocabulary.map((item) => item.id));
+  }
+
+  /** Marks every selected word as learned, keeping the UI honest if a save fails. */
+  async markSelectedAsLearned() {
+    const targets = this.filteredVocabulary.filter((item) => this.selectedIds.has(item.id) && !item.learned);
+
+    if (targets.length === 0) {
+      return;
+    }
+
+    this.isBulkSaving = true;
+
+    for (const item of targets) {
+      item.learned = true;
+    }
+    this.onFilterChange();
+
+    const results = await Promise.allSettled(
+      targets.map((item) => this.vocabularyDataService.saveProgress(item.id, { learned: true }))
+    );
+
+    const failures = results.filter((result) => result.status === 'rejected') as PromiseRejectedResult[];
+
+    if (failures.length > 0) {
+      for (let i = 0; i < results.length; i++) {
+        if (results[i].status === 'rejected') {
+          targets[i].learned = false;
+        }
+      }
+      this.onFilterChange();
+
+      const firstReason = failures[0].reason;
+      this.showProgressMessage(firstReason instanceof AuthenticationRequiredError
+        ? firstReason.message
+        : `Could not save ${failures.length} of ${targets.length} words. Please try again.`);
+      console.error('Could not save bulk progress', firstReason);
+    } else {
+      this.selectedIds.clear();
+      this.showProgressMessage(`Marked ${targets.length} word${targets.length === 1 ? '' : 's'} as learned.`);
+    }
+
+    this.isBulkSaving = false;
+  }
+
   dismissProgressMessage() {
     this.progressMessage = '';
 
@@ -140,8 +222,23 @@ export class DashboardComponent implements OnInit {
       this.isLoading = false;
       const cats = new Set(this.vocabularyItems.map(item => item.category));
       this.categories = ['All', ...Array.from(cats)].filter(c => c);
+      this.wordOfTheDay = this.pickWordOfTheDay();
       this.onFilterChange();
     }
+  }
+
+  /**
+   * Picks a stable word for the current calendar day so the card does not
+   * change on every reload but still rotates daily.
+   */
+  private pickWordOfTheDay(): VocabularyWord | null {
+    if (this.vocabularyItems.length === 0) {
+      return null;
+    }
+
+    const startOfYear = new Date(new Date().getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((Date.now() - startOfYear.getTime()) / 86400000);
+    return this.vocabularyItems[dayOfYear % this.vocabularyItems.length];
   }
 
   private showProgressMessage(message: string) {

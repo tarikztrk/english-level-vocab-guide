@@ -85,14 +85,7 @@ export class VocabularyDataService {
       const wordProgress = progressByWordId.get(Number(word.id));
 
       return {
-        id: Number(word.id),
-        word: word.word,
-        phonetic: word.phonetic ?? '',
-        meaning: word.meaning,
-        level: word.level ?? 'B1',
-        category: word.category ?? 'Academic',
-        example: word.example ?? '',
-        audioUrl: word.audio_url ?? '',
+        ...this.toVocabularyWord(word),
         learned: Boolean(wordProgress?.learned ?? word.learned),
         bookmarked: Boolean(wordProgress?.bookmarked ?? word.bookmarked)
       };
@@ -165,8 +158,8 @@ export class VocabularyDataService {
       word: word.word,
       phonetic: word.phonetic || null,
       meaning: word.meaning,
-      level: word.level || null,
-      category: word.category || null,
+      level: normalizeLevel(word.level) || null,
+      category: normalizeCategory(word.category) || null,
       example: word.example || null,
       audio_url: word.audioUrl || null
     };
@@ -178,12 +171,33 @@ export class VocabularyDataService {
       word: word.word,
       phonetic: word.phonetic ?? '',
       meaning: word.meaning,
-      level: word.level ?? 'B1',
-      category: word.category ?? 'Academic',
+      level: normalizeLevel(word.level) || 'B1',
+      category: normalizeCategory(word.category) || 'Academic',
       example: word.example ?? '',
       audioUrl: word.audio_url ?? '',
       learned: Boolean(word.learned),
       bookmarked: Boolean(word.bookmarked)
     };
   }
+}
+
+/**
+ * Levels and categories reach us with inconsistent casing: rows seeded early on
+ * use "B1"/"Academic" while the admin form used to write "b1"/"academic".
+ * Everything downstream (dashboard level tabs, list-view category buttons)
+ * compares these as exact strings, so normalise on the way in and out.
+ */
+export function normalizeLevel(level: string | null | undefined): string {
+  return (level ?? '').trim().toUpperCase();
+}
+
+export function normalizeCategory(category: string | null | undefined): string {
+  const trimmed = (category ?? '').trim();
+  if (!trimmed) {
+    return '';
+  }
+  return trimmed
+    .split(/\s+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
 }

@@ -1,8 +1,1 @@
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-button:focus,
-input:focus {
-  outline: none;
-}
+/* Icon font styling and focus rings are defined globally in src/styles.css. */

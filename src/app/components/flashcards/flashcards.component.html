@@ -42,16 +42,19 @@
       <!-- Toast message -->
       <div
         *ngIf="progressMessage"
-        class="fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border border-primary/20 bg-white px-4 py-3 text-sm font-semibold text-primary shadow-xl shadow-surface-container-high/40"
+        role="status"
+        aria-live="polite"
+        class="fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-sm font-semibold text-primary shadow-xl shadow-surface-container-high/40"
       >
-        <span class="material-symbols-outlined text-xl">info</span>
+        <span class="material-symbols-outlined text-xl" aria-hidden="true">info</span>
         <span class="flex-1">{{ progressMessage }}</span>
         <button
           type="button"
           class="text-on-surface-variant transition hover:text-primary"
+          aria-label="Dismiss message"
           (click)="dismissProgressMessage()"
         >
-          <span class="material-symbols-outlined text-lg">close</span>
+          <span class="material-symbols-outlined text-lg" aria-hidden="true">close</span>
         </button>
       </div>
 
@@ -71,7 +74,7 @@
       <!-- Error state -->
       <div
         *ngIf="!isLoading && loadError"
-        class="rounded-3xl border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700"
+        class="rounded-3xl border border-error/30 bg-error-container p-5 text-sm font-semibold text-on-error-container"
       >
         {{ loadError }}
       </div>
@@ -102,7 +105,7 @@
             >
             <div class="mx-auto mt-6 w-full max-w-2xl perspective">
               <div
-                class="relative mx-auto h-72 rounded-[2rem] transition-transform duration-500 ease-in-out flip-card-inner"
+                class="relative mx-auto h-80 rounded-[2rem] transition-transform duration-500 ease-in-out flip-card-inner sm:h-72"
                 [ngClass]="{ 'rotate-y-180': isFlipped }"
               >
                 <div
@@ -121,9 +124,9 @@
                   </p>
                 </div>
                 <div
-                  class="absolute inset-0 rounded-[2rem] bg-primary text-white p-10 text-center shadow-lg backface-hidden rotate-y-180 flex flex-col justify-center items-center"
+                  class="absolute inset-0 flex flex-col items-center justify-center overflow-y-auto rounded-[2rem] bg-primary p-6 text-center text-white shadow-lg backface-hidden rotate-y-180 sm:p-10"
                 >
-                  <p class="text-sm uppercase tracking-[0.2em] text-primary/90">
+                  <p class="text-sm uppercase tracking-[0.2em] opacity-80">
                     Back
                   </p>
                   <p class="mt-4 text-xl font-semibold">
@@ -135,17 +138,19 @@
                   <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
                     <button
                       (click)="listenToPronunciation()"
+                      [attr.aria-label]="'Listen to ' + currentCard.front"
                       class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container-low"
                     >
-                      <span class="material-symbols-outlined">volume_up</span>
+                      <span class="material-symbols-outlined" aria-hidden="true">volume_up</span>
                       Listen
                     </button>
                     <button
                       (click)="toggleLearned(currentCard)"
+                      [attr.aria-pressed]="currentCard.learned"
                       [ngClass]="currentCard.learned ? 'bg-secondary text-white' : 'bg-white text-primary'"
                       class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition hover:opacity-90"
                     >
-                      <span class="material-symbols-outlined">{{ currentCard.learned ? 'check_circle' : 'radio_button_unchecked' }}</span>
+                      <span class="material-symbols-outlined" aria-hidden="true">{{ currentCard.learned ? 'check_circle' : 'radio_button_unchecked' }}</span>
                       {{ currentCard.learned ? 'Learned' : 'Mark as Learned' }}
                     </button>
                   </div>
