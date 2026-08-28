@@ -18,7 +18,7 @@ export class AdminDashboardComponent implements OnInit {
       this.stats = await this.adminStatsService.getStats();
     } catch (error) {
       console.error('Could not load admin dashboard stats', error);
-      this.loadError = 'Could not load dashboard data.';
+      this.loadError = 'Panel verileri yüklenemedi.';
     } finally {
       this.isLoading = false;
     }
@@ -30,7 +30,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   formatDay(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' });
+    return new Date(dateStr).toLocaleDateString('tr-TR', { weekday: 'short' });
   }
 
   get lowestCoverageLevel(): { level: string; count: number } | null {

@@ -18,7 +18,7 @@ export class AdminAnalyticsComponent implements OnInit {
       this.stats = await this.adminStatsService.getStats();
     } catch (error) {
       console.error('Could not load admin analytics', error);
-      this.loadError = 'Could not load analytics data.';
+      this.loadError = 'Analiz verileri yüklenemedi.';
     } finally {
       this.isLoading = false;
     }
@@ -30,7 +30,7 @@ export class AdminAnalyticsComponent implements OnInit {
   }
 
   formatDay(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' });
+    return new Date(dateStr).toLocaleDateString('tr-TR', { weekday: 'short' });
   }
 
   initials(email: string): string {
@@ -42,15 +42,16 @@ export class AdminAnalyticsComponent implements OnInit {
     if (!this.stats || this.stats.topLearners.length === 0) return;
 
     const rows = [
-      ['Email', 'Words Learned', 'Mastery %'],
+      ['E-posta', 'Öğrenilen Kelime', 'Ustalık %'],
       ...this.stats.topLearners.map((learner) => [learner.email, String(learner.learnedCount), String(learner.masteryPercent)])
     ];
-    const csv = rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+    // The BOM keeps Turkish characters readable when the file is opened in Excel.
+    const csv = '﻿' + rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'top-learners.csv';
+    link.download = 'en-basarili-kullanicilar.csv';
     link.click();
     URL.revokeObjectURL(url);
   }

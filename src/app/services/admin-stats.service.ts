@@ -73,7 +73,7 @@ export class AdminStatsService {
 
     const totalWords = wordRows.length;
     const totalUsers = profileRows.length;
-    const emailByUserId = new Map(profileRows.map((p) => [p.id, p.email ?? 'Unknown user']));
+    const emailByUserId = new Map(profileRows.map((p) => [p.id, p.email ?? 'Bilinmeyen kullanıcı']));
 
     const learnedRows = progressRows.filter((row) => row.learned);
     const learnedCountByUser = new Map<string, number>();
@@ -93,7 +93,7 @@ export class AdminStatsService {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([userId, count]) => ({
-        email: emailByUserId.get(userId) ?? 'Unknown user',
+        email: emailByUserId.get(userId) ?? 'Bilinmeyen kullanıcı',
         learnedCount: count,
         masteryPercent: totalWords > 0 ? Math.round((count / totalWords) * 100) : 0
       }));
@@ -108,7 +108,7 @@ export class AdminStatsService {
     let missingExamplesCount = 0;
     let missingAudioCount = 0;
     for (const word of wordRows) {
-      const level = (word.level || 'Unspecified').toUpperCase();
+      const level = (word.level || 'Belirtilmemiş').toUpperCase();
       levelCounts.set(level, (levelCounts.get(level) ?? 0) + 1);
       if (!word.example) missingExamplesCount++;
       if (!word.audio_url) missingAudioCount++;

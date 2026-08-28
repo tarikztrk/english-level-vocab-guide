@@ -23,7 +23,7 @@ interface Flashcard {
   styleUrls: ["./flashcards.component.css"],
 })
 export class FlashcardsComponent implements OnInit {
-  title = "Flashcards";
+  title = "Bilgi Kartları";
   cards: Flashcard[] = [];
   isLoading = true;
   loadError = "";
@@ -125,7 +125,7 @@ export class FlashcardsComponent implements OnInit {
           this.showProgressMessage(
             error instanceof AuthenticationRequiredError
               ? error.message
-              : "Could not save learned state. Please try again.",
+              : "Öğrenildi bilgisi kaydedilemedi. Lütfen tekrar deneyin.",
           );
           console.error("Could not save learned state", error);
         });
@@ -172,7 +172,7 @@ export class FlashcardsComponent implements OnInit {
               back: item.meaning,
               category: item.category,
               pronunciation: item.phonetic,
-              example: item.example || `Example for ${item.word}`,
+              example: item.example || `${item.word} için örnek cümle eklenmemiş.`,
               audioUrl: item.audioUrl,
               learned: item.learned,
             }))
@@ -182,7 +182,7 @@ export class FlashcardsComponent implements OnInit {
         "Could not load flashcards from Supabase. Falling back to sample data.",
         error,
       );
-      this.loadError = "Could not load flashcards. Showing sample data.";
+      this.loadError = "Kartlar yüklenemedi. Örnek veriler gösteriliyor.";
       this.cards = this.fallbackCards;
     } finally {
       this.isLoading = false;

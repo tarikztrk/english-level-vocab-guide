@@ -2,24 +2,24 @@
   <div class="flex flex-col gap-md rounded-3xl border border-outline-variant bg-surface p-md shadow-[0_16px_40px_rgba(21,28,39,0.06)]">
     <div class="flex flex-col justify-between gap-md lg:flex-row lg:items-end">
       <div>
-        <p class="font-label-caps text-label-caps uppercase text-primary">Admin Panel</p>
+        <p class="font-label-caps text-label-caps uppercase text-primary">Yönetim Paneli</p>
         <h1 class="mt-xs font-display-lg-mobile text-display-lg-mobile text-on-surface md:font-display-lg md:text-display-lg">
-          Overview
+          Genel Bakış
         </h1>
         <p class="mt-xs max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
-          Platform vocabulary health, learner progress, and review workload in one operational view.
+          Kelime havuzunun durumu, kullanıcı ilerlemesi ve gözden geçirilmesi gerekenler tek ekranda.
         </p>
       </div>
 
       <nav class="flex flex-wrap gap-sm">
         <a routerLink="/admin/dashboard" routerLinkActive="bg-primary text-on-primary shadow-sm" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full border border-outline-variant px-sm py-xs font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Dashboard
+          Panel
         </a>
         <a routerLink="/admin/vocabulary" routerLinkActive="bg-primary text-on-primary shadow-sm" class="rounded-full border border-outline-variant px-sm py-xs font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Vocabulary
+          Kelimeler
         </a>
         <a routerLink="/admin/analytics" routerLinkActive="bg-primary text-on-primary shadow-sm" class="rounded-full border border-outline-variant px-sm py-xs font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Analytics
+          Analiz
         </a>
       </nav>
     </div>
@@ -27,7 +27,7 @@
 
   <div *ngIf="isLoading" class="rounded-3xl border border-outline-variant bg-surface p-lg text-center shadow-sm">
     <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
-    <p class="mt-md font-body-md text-body-md text-on-surface-variant">Loading dashboard...</p>
+    <p class="mt-md font-body-md text-body-md text-on-surface-variant">Panel yükleniyor...</p>
   </div>
 
   <div *ngIf="!isLoading && loadError" class="rounded-3xl border border-error/30 bg-error-container p-md font-body-md text-body-md text-on-error-container">
@@ -38,43 +38,43 @@
     <div class="grid grid-cols-1 gap-md md:grid-cols-2 lg:grid-cols-4">
       <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
         <div class="flex items-start justify-between gap-sm">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Total Users</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Toplam Kullanıcı</span>
           <span class="material-symbols-outlined rounded-xl bg-primary-fixed p-xs text-primary">groups</span>
         </div>
         <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.totalUsers }}</strong>
         <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-outline">
           <span class="material-symbols-outlined text-[16px]">badge</span>
-          Registered accounts
+          Kayıtlı hesap
         </p>
       </article>
 
       <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
         <div class="flex items-start justify-between gap-sm">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Active Today</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Bugün Aktif</span>
           <span class="material-symbols-outlined rounded-xl bg-secondary-container p-xs text-on-secondary-container">bolt</span>
         </div>
         <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.activeToday }}</strong>
         <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-outline">
           <span class="material-symbols-outlined text-[16px]">history</span>
-          Saved progress today
+          Bugün ilerleme kaydetti
         </p>
       </article>
 
       <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
         <div class="flex items-start justify-between gap-sm">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Vocabulary Count</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Kelime Sayısı</span>
           <span class="material-symbols-outlined rounded-xl bg-tertiary-fixed p-xs text-on-tertiary-fixed">menu_book</span>
         </div>
         <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.totalWords }}</strong>
         <p class="mt-xs flex items-center gap-xs font-label-caps text-label-caps text-outline">
           <span class="material-symbols-outlined text-[16px]">database</span>
-          Synced from vocabulary service
+          Kelime veritabanından alındı
         </p>
       </article>
 
       <article class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
         <div class="flex items-start justify-between gap-sm">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Avg Mastery Rate</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Ortalama Ustalık</span>
           <span class="material-symbols-outlined rounded-xl bg-primary-container p-xs text-on-primary-container">school</span>
         </div>
         <strong class="mt-md block font-display-lg-mobile text-display-lg-mobile text-on-surface">{{ stats.avgMasteryRate }}%</strong>
@@ -88,14 +88,14 @@
       <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)] lg:col-span-2">
         <div class="flex flex-col justify-between gap-sm sm:flex-row sm:items-center">
           <div>
-            <h2 class="font-headline-sm text-headline-sm text-on-surface">Learner Activity</h2>
-            <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Distinct learners with saved progress, last 7 days.</p>
+            <h2 class="font-headline-sm text-headline-sm text-on-surface">Kullanıcı Aktivitesi</h2>
+            <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Son 7 günde ilerleme kaydeden farklı kullanıcı sayısı.</p>
           </div>
         </div>
 
         <div class="mt-md flex h-72 items-end gap-sm rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
           <div *ngFor="let point of stats.dailyActive" class="flex flex-1 flex-col items-center gap-xs">
-            <div class="w-full rounded-t-xl bg-primary-fixed-dim" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' active'"></div>
+            <div class="w-full rounded-t-xl bg-primary-fixed-dim" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' aktif kullanıcı'"></div>
             <span class="font-label-caps text-label-caps text-on-surface-variant">{{ formatDay(point.date) }}</span>
           </div>
         </div>
@@ -103,22 +103,22 @@
 
       <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
         <div class="flex items-center justify-between gap-sm">
-          <h2 class="font-headline-sm text-headline-sm text-on-surface">Review Queue</h2>
-          <a routerLink="/admin/vocabulary" class="font-label-caps text-label-caps uppercase text-primary hover:text-primary-dark">Open</a>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Gözden Geçirilecekler</h2>
+          <a routerLink="/admin/vocabulary" class="font-label-caps text-label-caps uppercase text-primary hover:text-primary-dark">Aç</a>
         </div>
 
         <div class="mt-md flex flex-col gap-sm">
           <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
-            <p class="font-body-md text-body-md font-semibold text-on-surface">Missing example sentences</p>
-            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ stats.missingExamplesCount }} words can be improved</p>
+            <p class="font-body-md text-body-md font-semibold text-on-surface">Örnek cümlesi eksik</p>
+            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ stats.missingExamplesCount }} kelime iyileştirilebilir</p>
           </div>
           <div class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
-            <p class="font-body-md text-body-md font-semibold text-on-surface">Missing audio</p>
-            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ stats.missingAudioCount }} words have no audio file</p>
+            <p class="font-body-md text-body-md font-semibold text-on-surface">Ses dosyası eksik</p>
+            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ stats.missingAudioCount }} kelimenin ses dosyası yok</p>
           </div>
           <div *ngIf="lowestCoverageLevel" class="rounded-xl border border-outline-variant bg-surface-container-lowest p-sm">
-            <p class="font-body-md text-body-md font-semibold text-on-surface">Lowest CEFR coverage</p>
-            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ lowestCoverageLevel.level }} has only {{ lowestCoverageLevel.count }} words</p>
+            <p class="font-body-md text-body-md font-semibold text-on-surface">En az kelime içeren seviye</p>
+            <p class="mt-xs font-label-caps text-label-caps text-outline">{{ lowestCoverageLevel.level }} seviyesinde yalnızca {{ lowestCoverageLevel.count }} kelime var</p>
           </div>
         </div>
       </section>

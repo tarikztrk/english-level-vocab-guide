@@ -36,7 +36,7 @@ interface UserProgressRow {
 
 export class AuthenticationRequiredError extends Error {
   constructor() {
-    super('Sign in to save your learning progress.');
+    super('İlerlemenizi kaydetmek için giriş yapın.');
     this.name = 'AuthenticationRequiredError';
   }
 }

@@ -8,19 +8,24 @@ import { PronunciationService } from '../../services/pronunciation.service';
   styleUrls: ['./list-view.component.css']
 })
 export class ListViewComponent implements OnInit {
-  title = 'Word Explorer';
+  title = 'Kelime Listesi';
 
   constructor(
     private vocabularyDataService: VocabularyDataService,
     private pronunciationService: PronunciationService
   ) {}
   search = '';
-  selectedCategory = 'All';
-  selectedSort = 'A-Z';
-  sortOptions = ['A-Z', 'Learned', 'New'];
+  selectedCategory = 'Tümü';
+  /** Display labels are Turkish; the `value` keys stay stable for the sort logic. */
+  selectedSort = 'az';
+  sortOptions = [
+    { value: 'az', label: 'A-Z' },
+    { value: 'learned', label: 'Öğrenilenler' },
+    { value: 'new', label: 'Yeniler' }
+  ];
   showBookmarkedOnly = false;
 
-  categories: string[] = ['All'];
+  categories: string[] = ['Tümü'];
   filteredWords: VocabularyWord[] = [];
   
   currentTotal = 0;
@@ -51,20 +56,20 @@ export class ListViewComponent implements OnInit {
   onFilterChange() {
     const term = this.search.trim().toLowerCase();
     let filtered = this.vocabulary.filter((item) => {
-      const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;
+      const matchesCategory = this.selectedCategory === 'Tümü' || item.category === this.selectedCategory;
       const matchesSearch = term === '' || item.word.toLowerCase().includes(term) || item.meaning.toLowerCase().includes(term);
       const matchesBookmark = !this.showBookmarkedOnly || item.bookmarked;
       return matchesCategory && matchesSearch && matchesBookmark;
     });
 
     filtered = filtered.sort((a, b) => {
-      if (this.selectedSort === 'Learned') {
+      if (this.selectedSort === 'learned') {
         return Number(b.learned) - Number(a.learned);
       }
-      if (this.selectedSort === 'New') {
+      if (this.selectedSort === 'new') {
         return Number(a.learned) - Number(b.learned);
       }
-      return a.word.localeCompare(b.word);
+      return a.word.localeCompare(b.word, 'tr');
     });
 
     this.filteredWords = filtered;
@@ -95,9 +100,9 @@ export class ListViewComponent implements OnInit {
   /** Clears filters and surfaces the words that are still unlearned. */
   reviewDifficultWords() {
     this.search = '';
-    this.selectedCategory = 'All';
+    this.selectedCategory = 'Tümü';
     this.showBookmarkedOnly = false;
-    this.selectedSort = 'New';
+    this.selectedSort = 'new';
     this.onFilterChange();
   }
 
@@ -107,24 +112,25 @@ export class ListViewComponent implements OnInit {
     }
 
     const rows = [
-      ['Word', 'Phonetic', 'Meaning', 'Level', 'Category', 'Learned', 'Bookmarked'],
+      ['Kelime', 'Okunuş', 'Anlam', 'Seviye', 'Kategori', 'Öğrenildi', 'Kaydedildi'],
       ...this.filteredWords.map((word) => [
         word.word,
         word.phonetic,
         word.meaning,
         word.level,
         word.category,
-        word.learned ? 'yes' : 'no',
-        word.bookmarked ? 'yes' : 'no'
+        word.learned ? 'evet' : 'hayır',
+        word.bookmarked ? 'evet' : 'hayır'
       ])
     ];
 
-    const csv = rows.map((row) => row.map((cell) => `"${(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    // The BOM keeps Turkish characters readable when the file is opened in Excel.
+    const csv = '﻿' + rows.map((row) => row.map((cell) => `"${(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'vocabulary-list.csv';
+    link.download = 'kelime-listesi.csv';
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -143,7 +149,7 @@ export class ListViewComponent implements OnInit {
         this.onFilterChange();
         this.showProgressMessage(error instanceof AuthenticationRequiredError
           ? error.message
-          : 'Could not save learned state. Please try again.');
+          : 'Öğrenildi bilgisi kaydedilemedi. Lütfen tekrar deneyin.');
         console.error('Could not save learned state', error);
       });
     }
@@ -157,7 +163,7 @@ export class ListViewComponent implements OnInit {
         word.bookmarked = !word.bookmarked;
         this.showProgressMessage(error instanceof AuthenticationRequiredError
           ? error.message
-          : 'Could not save bookmark state. Please try again.');
+          : 'Kaydedilenler güncellenemedi. Lütfen tekrar deneyin.');
         console.error('Could not save bookmark state', error);
       });
     }
@@ -180,12 +186,12 @@ export class ListViewComponent implements OnInit {
       this.vocabulary = data;
     } catch (error) {
       console.error('Could not load vocabulary from Supabase. Falling back to sample data.', error);
-      this.loadError = 'Could not load vocabulary from Supabase. Showing sample data.';
+      this.loadError = 'Kelimeler yüklenemedi. Örnek veriler gösteriliyor.';
       this.vocabulary = this.fallbackVocabulary;
     } finally {
       this.isLoading = false;
       const cats = new Set(this.vocabulary.map(item => item.category));
-      this.categories = ['All', ...Array.from(cats)].filter(c => c);
+      this.categories = ['Tümü', ...Array.from(cats)].filter(c => c);
       this.onFilterChange();
     }
   }

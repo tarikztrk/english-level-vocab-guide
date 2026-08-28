@@ -1,17 +1,21 @@
 <div class="min-h-screen bg-background text-on-surface">
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white">
+    İçeriğe geç
+  </a>
+
   <header class="sticky top-0 z-50 border-b border-outline-variant/20 bg-surface/95 backdrop-blur">
     <div class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-gutter py-4">
       <a routerLink="/" class="flex items-center gap-3 text-lg font-bold text-primary hover:text-primary-dark">
-        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-base font-bold text-white">L</div>
-        <span>LexiLearn</span>
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-sm font-bold text-white" aria-hidden="true">EA</div>
+        <span>EnglishAcademy</span>
       </a>
 
       <div class="flex flex-wrap items-center gap-3">
-        <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold">
-          <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Dashboard</a>
-          <a routerLink="/list" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Word List</a>
-          <a routerLink="/flashcards" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Flashcards</a>
-          <a *ngIf="isAdmin$ | async" routerLink="/admin/dashboard" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Admin</a>
+        <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold" aria-label="Ana menü">
+          <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Ana Sayfa</a>
+          <a routerLink="/list" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Kelime Listesi</a>
+          <a routerLink="/flashcards" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Bilgi Kartları</a>
+          <a *ngIf="isAdmin$ | async" routerLink="/admin/dashboard" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Yönetim</a>
         </nav>
 
         <ng-container *ngIf="user$ | async as user; else signedOut">
@@ -19,18 +23,18 @@
             {{ user.email }}
           </span>
           <button class="rounded-full border border-outline-variant/30 bg-surface px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container" type="button" (click)="signOut()">
-            Logout
+            Çıkış Yap
           </button>
         </ng-container>
 
         <ng-template #signedOut>
-          <a routerLink="/auth" routerLinkActive="text-primary" class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark">Sign In</a>
+          <a routerLink="/auth" routerLinkActive="text-primary" class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark">Giriş Yap</a>
         </ng-template>
       </div>
     </div>
   </header>
 
-  <main class="pb-10">
+  <main id="main-content" class="pb-10">
     <router-outlet></router-outlet>
   </main>
 </div>

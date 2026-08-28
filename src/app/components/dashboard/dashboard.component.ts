@@ -13,7 +13,7 @@ interface LevelTab {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  title = 'LexiLearn';
+  title = 'EnglishAcademy';
 
   constructor(
     private vocabularyDataService: VocabularyDataService,
@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   tabs: LevelTab[] = [
-    { label: 'All Levels', active: true },
+    { label: 'Tüm Seviyeler', active: true },
     { label: 'A1', active: false },
     { label: 'A2', active: false },
     { label: 'B1', active: false },
@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit {
     { label: 'C2', active: false }
   ];
 
-  selectedCategory = 'All';
+  selectedCategory = 'Tümü';
   search = '';
   progressMessage = '';
   isLoading = true;
@@ -39,7 +39,7 @@ export class DashboardComponent implements OnInit {
 
   vocabularyItems: VocabularyWord[] = [];
   filteredVocabulary: VocabularyWord[] = [];
-  categories: string[] = ['All'];
+  categories: string[] = ['Tümü'];
 
   currentTotal = 0;
   currentLearned = 0;
@@ -66,11 +66,11 @@ export class DashboardComponent implements OnInit {
     const activeTab = this.tabs.find(t => t.active);
     const activeTabLabel = activeTab?.label;
 
-    this.activeLevelLabel = !activeTab || activeTabLabel === 'All Levels' ? '' : (activeTabLabel + ' ');
+    this.activeLevelLabel = !activeTab || activeTabLabel === 'Tüm Seviyeler' ? '' : (activeTabLabel + ' ');
 
     this.filteredVocabulary = this.vocabularyItems.filter((item) => {
-      const matchesLevel = !activeTabLabel || activeTabLabel === 'All Levels' || item.level === activeTabLabel;
-      const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;
+      const matchesLevel = !activeTabLabel || activeTabLabel === 'Tüm Seviyeler' || item.level === activeTabLabel;
+      const matchesCategory = this.selectedCategory === 'Tümü' || item.category === this.selectedCategory;
       const term = this.search.trim().toLowerCase();
       const matchesSearch = term === '' || item.word.toLowerCase().includes(term) || item.meaning.toLowerCase().includes(term);
       return matchesLevel && matchesCategory && matchesSearch;
@@ -113,7 +113,7 @@ export class DashboardComponent implements OnInit {
         this.onFilterChange();
         this.showProgressMessage(error instanceof AuthenticationRequiredError
           ? error.message
-          : 'Could not save vocabulary progress. Please try again.');
+          : 'İlerleme kaydedilemedi. Lütfen tekrar deneyin.');
         console.error('Could not save vocabulary progress', error);
       });
     }
@@ -127,7 +127,7 @@ export class DashboardComponent implements OnInit {
         item.bookmarked = !item.bookmarked;
         this.showProgressMessage(error instanceof AuthenticationRequiredError
           ? error.message
-          : 'Could not save bookmark state. Please try again.');
+          : 'Kaydedilenler güncellenemedi. Lütfen tekrar deneyin.');
         console.error('Could not save bookmark state', error);
       });
     }
@@ -189,11 +189,11 @@ export class DashboardComponent implements OnInit {
       const firstReason = failures[0].reason;
       this.showProgressMessage(firstReason instanceof AuthenticationRequiredError
         ? firstReason.message
-        : `Could not save ${failures.length} of ${targets.length} words. Please try again.`);
+        : `${targets.length} kelimeden ${failures.length} tanesi kaydedilemedi. Lütfen tekrar deneyin.`);
       console.error('Could not save bulk progress', firstReason);
     } else {
       this.selectedIds.clear();
-      this.showProgressMessage(`Marked ${targets.length} word${targets.length === 1 ? '' : 's'} as learned.`);
+      this.showProgressMessage(`${targets.length} kelime öğrenildi olarak işaretlendi.`);
     }
 
     this.isBulkSaving = false;
@@ -216,12 +216,12 @@ export class DashboardComponent implements OnInit {
       this.vocabularyItems = data;
     } catch (error) {
       console.error('Could not load vocabulary from Supabase. Falling back to sample data.', error);
-      this.loadError = 'Could not load vocabulary from Supabase. Showing sample data.';
+      this.loadError = 'Kelimeler yüklenemedi. Örnek veriler gösteriliyor.';
       this.vocabularyItems = this.fallbackVocabulary;
     } finally {
       this.isLoading = false;
       const cats = new Set(this.vocabularyItems.map(item => item.category));
-      this.categories = ['All', ...Array.from(cats)].filter(c => c);
+      this.categories = ['Tümü', ...Array.from(cats)].filter(c => c);
       this.wordOfTheDay = this.pickWordOfTheDay();
       this.onFilterChange();
     }

@@ -2,24 +2,24 @@
   <div class="flex flex-col gap-md rounded-3xl border border-outline-variant bg-surface p-md shadow-[0_16px_40px_rgba(21,28,39,0.06)]">
     <div class="flex flex-col justify-between gap-md lg:flex-row lg:items-end">
       <div>
-        <p class="font-label-caps text-label-caps uppercase text-primary">Admin Panel</p>
+        <p class="font-label-caps text-label-caps uppercase text-primary">Yönetim Paneli</p>
         <h1 class="mt-xs font-display-lg-mobile text-display-lg-mobile text-on-surface md:font-display-lg md:text-display-lg">
-          Vocabulary Management
+          Kelime Yönetimi
         </h1>
         <p class="mt-xs max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
-          Search, filter, and audit the central lexicon database across CEFR levels.
+          Kelime veritabanını arayın, filtreleyin ve CEFR seviyelerine göre inceleyin.
         </p>
       </div>
 
       <nav class="flex flex-wrap gap-sm">
         <a routerLink="/admin/dashboard" routerLinkActive="bg-primary text-on-primary shadow-sm" class="rounded-full border border-outline-variant px-sm py-xs font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Dashboard
+          Panel
         </a>
         <a routerLink="/admin/vocabulary" routerLinkActive="bg-primary text-on-primary shadow-sm" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full border border-outline-variant px-sm py-xs font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Vocabulary
+          Kelimeler
         </a>
         <a routerLink="/admin/analytics" routerLinkActive="bg-primary text-on-primary shadow-sm" class="rounded-full border border-outline-variant px-sm py-xs font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Analytics
+          Analiz
         </a>
       </nav>
     </div>
@@ -27,17 +27,17 @@
     <div class="grid grid-cols-1 gap-sm md:grid-cols-12">
       <label class="relative md:col-span-6">
         <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
-        <span class="sr-only">Search words</span>
-        <input [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" class="h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-xl pr-sm font-body-md text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Search word or meaning..." type="text" />
+        <span class="sr-only">Kelime ara</span>
+        <input [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" class="h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-xl pr-sm font-body-md text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Kelime veya anlam ara..." type="text" />
       </label>
 
-      <select [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()" aria-label="Filter by level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
-        <option value="">All Levels</option>
+      <select [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()" aria-label="Seviyeye göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
+        <option value="">Tüm Seviyeler</option>
         <option *ngFor="let level of levelOptions" [value]="level">{{ level }}</option>
       </select>
 
-      <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()" aria-label="Filter by category" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
-        <option value="">All Categories</option>
+      <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()" aria-label="Kategoriye göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
+        <option value="">Tüm Kategoriler</option>
         <option *ngFor="let category of categoryOptions" [value]="category">{{ category }}</option>
       </select>
     </div>
@@ -46,13 +46,13 @@
   <div class="overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
     <div class="flex flex-col justify-between gap-sm border-b border-outline-variant bg-surface-container-lowest px-md py-sm sm:flex-row sm:items-center">
       <div>
-        <h2 class="font-headline-sm text-headline-sm text-on-surface">Words</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant">{{ filteredWords.length }} matching entries</p>
+        <h2 class="font-headline-sm text-headline-sm text-on-surface">Kelimeler</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">{{ filteredWords.length }} kelime bulundu</p>
       </div>
       <div class="flex gap-sm">
         <button type="button" class="inline-flex items-center gap-xs rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark" (click)="openAddModal()">
           <span class="material-symbols-outlined text-[18px]">add</span>
-          Add Word
+          Kelime Ekle
         </button>
       </div>
     </div>
@@ -61,11 +61,11 @@
       <table class="w-full min-w-[760px] border-collapse text-left">
         <thead>
           <tr class="border-b border-outline-variant bg-surface-container-low">
-            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Word / Meaning</th>
-            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Level</th>
-            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Category</th>
-            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Status</th>
-            <th class="px-sm py-sm text-right font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Actions</th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Kelime / Anlam</th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Seviye</th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Kategori</th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Durum</th>
+            <th class="px-sm py-sm text-right font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">İşlemler</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-outline-variant">
@@ -82,21 +82,21 @@
             <td class="px-sm py-sm">
               <span class="inline-flex items-center gap-xs rounded-full px-3 py-1 font-label-caps text-label-caps" [ngClass]="word.learned ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container text-on-surface-variant'">
                 <span class="h-2 w-2 rounded-full" [ngClass]="word.learned ? 'bg-secondary' : 'bg-outline'"></span>
-                {{ word.learned ? 'Learned' : 'Active' }}
+                {{ word.learned ? 'Öğrenildi' : 'Aktif' }}
               </span>
             </td>
             <td class="px-sm py-sm text-right">
-              <button type="button" (click)="openEditModal(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" [attr.aria-label]="'Edit ' + word.word" title="Edit">
+              <button type="button" (click)="openEditModal(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" [attr.aria-label]="word.word + ' kelimesini düzenle'" title="Düzenle">
                 <span class="material-symbols-outlined text-[20px]" aria-hidden="true">edit</span>
               </button>
-              <button type="button" (click)="deleteWord(word)" class="rounded-lg p-xs text-outline transition hover:bg-error-container hover:text-error" [attr.aria-label]="'Delete ' + word.word" title="Delete">
+              <button type="button" (click)="deleteWord(word)" class="rounded-lg p-xs text-outline transition hover:bg-error-container hover:text-error" [attr.aria-label]="word.word + ' kelimesini sil'" title="Sil">
                 <span class="material-symbols-outlined text-[20px]" aria-hidden="true">delete</span>
               </button>
             </td>
           </tr>
           <tr *ngIf="filteredWords.length === 0">
             <td colspan="5" class="px-md py-lg text-center font-body-md text-body-md text-on-surface-variant">
-              No vocabulary entries match the current filters.
+              Seçili filtrelerle eşleşen kelime yok.
             </td>
           </tr>
         </tbody>
@@ -105,7 +105,7 @@
 
     <div class="flex flex-col justify-between gap-sm border-t border-outline-variant bg-surface-container-lowest px-md py-sm sm:flex-row sm:items-center">
       <span class="font-body-md text-body-md text-on-surface-variant">
-        Showing {{ firstItemIndex }} to {{ lastItemIndex }} of {{ filteredWords.length }} words
+        {{ filteredWords.length }} kelimeden {{ firstItemIndex }}-{{ lastItemIndex }} arası gösteriliyor
       </span>
       <div class="flex flex-wrap gap-xs">
         <button type="button" (click)="prevPage()" [disabled]="currentPage === 1" class="rounded-lg border border-outline-variant p-xs text-outline transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50">
@@ -124,39 +124,39 @@
   <div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-on-surface/40 px-gutter py-lg" (click)="closeModal()">
     <div class="my-auto max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-surface p-md shadow-[0_24px_64px_rgba(21,28,39,0.2)]" role="dialog" aria-modal="true" aria-labelledby="word-modal-title" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between">
-        <h2 id="word-modal-title" class="font-headline-sm text-headline-sm text-on-surface">{{ editingWord ? 'Edit Word' : 'Add Word' }}</h2>
-        <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" aria-label="Close dialog" (click)="closeModal()">
+        <h2 id="word-modal-title" class="font-headline-sm text-headline-sm text-on-surface">{{ editingWord ? 'Kelimeyi Düzenle' : 'Kelime Ekle' }}</h2>
+        <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" aria-label="Pencereyi kapat" (click)="closeModal()">
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
         </button>
       </div>
 
       <form class="mt-md flex flex-col gap-sm" (ngSubmit)="saveWord()">
         <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Word</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Kelime</span>
           <input [(ngModel)]="formModel.word" name="word" type="text" required autofocus class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Phonetic</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Okunuş</span>
           <input [(ngModel)]="formModel.phonetic" name="phonetic" type="text" placeholder="/ɪɡˈzæmpəl/" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Meaning</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Anlam</span>
           <input [(ngModel)]="formModel.meaning" name="meaning" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <div class="grid grid-cols-2 gap-sm">
           <label class="flex flex-col gap-1">
-            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Level</span>
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Seviye</span>
             <select [(ngModel)]="formModel.level" name="level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20">
               <option *ngFor="let level of cefrLevels" [value]="level">{{ level }}</option>
             </select>
           </label>
 
           <label class="flex flex-col gap-1">
-            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Category</span>
-            <input [(ngModel)]="formModel.category" name="category" type="text" list="category-options" placeholder="Academic" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Kategori</span>
+            <input [(ngModel)]="formModel.category" name="category" type="text" list="category-options" placeholder="Akademik" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
             <datalist id="category-options">
               <option *ngFor="let category of categoryOptions" [value]="category"></option>
             </datalist>
@@ -164,12 +164,12 @@
         </div>
 
         <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Example sentence</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Örnek cümle</span>
           <textarea [(ngModel)]="formModel.example" name="example" rows="2" class="rounded-xl border border-outline-variant bg-surface-container-lowest px-sm py-xs font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20"></textarea>
         </label>
 
         <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Audio URL</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Ses dosyası bağlantısı</span>
           <input [(ngModel)]="formModel.audioUrl" name="audioUrl" type="text" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
@@ -177,10 +177,10 @@
 
         <div class="mt-xs flex justify-end gap-sm">
           <button type="button" (click)="closeModal()" class="rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface-variant transition hover:bg-surface-container">
-            Cancel
+            İptal
           </button>
           <button type="submit" [disabled]="isSaving" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
-            {{ isSaving ? 'Saving...' : (editingWord ? 'Save Changes' : 'Add Word') }}
+            {{ isSaving ? 'Kaydediliyor...' : (editingWord ? 'Değişiklikleri Kaydet' : 'Kelime Ekle') }}
           </button>
         </div>
       </form>

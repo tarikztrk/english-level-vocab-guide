@@ -93,7 +93,7 @@ export class AdminVocabularyComponent implements OnInit {
 
   async saveWord() {
     if (!this.formModel.word.trim() || !this.formModel.meaning.trim()) {
-      this.errorMessage = 'Word and meaning are required.';
+      this.errorMessage = 'Kelime ve anlam alanları zorunludur.';
       return;
     }
 
@@ -113,14 +113,14 @@ export class AdminVocabularyComponent implements OnInit {
       this.applyFilters();
       this.isModalOpen = false;
     } catch (error) {
-      this.errorMessage = error instanceof Error ? error.message : 'Could not save this word.';
+      this.errorMessage = error instanceof Error ? error.message : 'Kelime kaydedilemedi.';
     } finally {
       this.isSaving = false;
     }
   }
 
   async deleteWord(word: VocabularyWord) {
-    const confirmed = confirm(`Delete "${word.word}"? This cannot be undone.`);
+    const confirmed = confirm(`"${word.word}" kelimesi silinsin mi? Bu işlem geri alınamaz.`);
     if (!confirmed) {
       return;
     }
@@ -131,7 +131,7 @@ export class AdminVocabularyComponent implements OnInit {
       this.refreshOptions();
       this.applyFilters();
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Could not delete this word.');
+      alert(error instanceof Error ? error.message : 'Kelime silinemedi.');
     }
   }
   

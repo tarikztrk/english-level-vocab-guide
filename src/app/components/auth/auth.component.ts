@@ -21,15 +21,15 @@ export class AuthComponent {
   ) {}
 
   get title() {
-    return this.mode === 'signIn' ? 'Sign in to LexiLearn' : 'Create your LexiLearn account';
+    return this.mode === 'signIn' ? 'EnglishAcademy\'ye giriş yapın' : 'EnglishAcademy hesabı oluşturun';
   }
 
   get submitLabel() {
-    return this.mode === 'signIn' ? 'Sign In' : 'Create Account';
+    return this.mode === 'signIn' ? 'Giriş Yap' : 'Hesap Oluştur';
   }
 
   get toggleLabel() {
-    return this.mode === 'signIn' ? 'Need an account? Sign up' : 'Already have an account? Sign in';
+    return this.mode === 'signIn' ? 'Hesabınız yok mu? Kayıt olun' : 'Zaten hesabınız var mı? Giriş yapın';
   }
 
   toggleMode() {
@@ -43,7 +43,7 @@ export class AuthComponent {
     this.successMessage = '';
 
     if (!this.email.trim() || this.password.length < 6) {
-      this.errorMessage = 'Enter an email and a password with at least 6 characters.';
+      this.errorMessage = 'E-posta adresinizi ve en az 6 karakterli bir şifre girin.';
       return;
     }
 
@@ -63,9 +63,9 @@ export class AuthComponent {
         return;
       }
 
-      this.successMessage = 'Account created. Check your email to confirm your account, then sign in.';
+      this.successMessage = 'Hesabınız oluşturuldu. E-postanızdaki doğrulama bağlantısına tıklayıp giriş yapın.';
     } catch (error) {
-      this.errorMessage = error instanceof Error ? error.message : 'Authentication failed.';
+      this.errorMessage = error instanceof Error ? error.message : 'Giriş yapılamadı.';
     } finally {
       this.loading = false;
     }
