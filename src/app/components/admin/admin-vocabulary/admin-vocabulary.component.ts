@@ -1,6 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { VocabularyDataService, VocabularyWord } from '../../../services/vocabulary-data.service';
 
+type WordFormModel = Omit<VocabularyWord, 'id' | 'learned' | 'bookmarked'>;
+
+const EMPTY_FORM: WordFormModel = {
+  word: '',
+  phonetic: '',
+  meaning: '',
+  level: 'b1',
+  category: 'academic',
+  example: '',
+  audioUrl: ''
+};
+
 @Component({
   selector: 'app-admin-vocabulary',
   templateUrl: './admin-vocabulary.component.html',
@@ -9,19 +21,93 @@ import { VocabularyDataService, VocabularyWord } from '../../../services/vocabul
 export class AdminVocabularyComponent implements OnInit {
   words: VocabularyWord[] = [];
   filteredWords: VocabularyWord[] = [];
-  
+
   searchTerm: string = '';
   selectedLevel: string = '';
   selectedCategory: string = '';
-  
+
   currentPage: number = 1;
   pageSize: number = 10;
-  
+
+  isModalOpen = false;
+  editingWord: VocabularyWord | null = null;
+  formModel: WordFormModel = { ...EMPTY_FORM };
+  isSaving = false;
+  errorMessage = '';
+
   constructor(private vocabService: VocabularyDataService) {}
 
   async ngOnInit() {
     this.words = await this.vocabService.getWords();
     this.applyFilters();
+  }
+
+  openAddModal() {
+    this.editingWord = null;
+    this.formModel = { ...EMPTY_FORM };
+    this.errorMessage = '';
+    this.isModalOpen = true;
+  }
+
+  openEditModal(word: VocabularyWord) {
+    this.editingWord = word;
+    this.formModel = {
+      word: word.word,
+      phonetic: word.phonetic,
+      meaning: word.meaning,
+      level: word.level,
+      category: word.category,
+      example: word.example,
+      audioUrl: word.audioUrl
+    };
+    this.errorMessage = '';
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+  }
+
+  async saveWord() {
+    if (!this.formModel.word.trim() || !this.formModel.meaning.trim()) {
+      this.errorMessage = 'Word and meaning are required.';
+      return;
+    }
+
+    this.isSaving = true;
+    this.errorMessage = '';
+
+    try {
+      if (this.editingWord) {
+        const updated = await this.vocabService.updateWord(this.editingWord.id, this.formModel);
+        this.words = this.words.map((w) => (w.id === updated.id ? updated : w));
+      } else {
+        const created = await this.vocabService.createWord(this.formModel);
+        this.words = [...this.words, created];
+      }
+
+      this.applyFilters();
+      this.isModalOpen = false;
+    } catch (error) {
+      this.errorMessage = error instanceof Error ? error.message : 'Could not save this word.';
+    } finally {
+      this.isSaving = false;
+    }
+  }
+
+  async deleteWord(word: VocabularyWord) {
+    const confirmed = confirm(`Delete "${word.word}"? This cannot be undone.`);
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.vocabService.deleteWord(word.id);
+      this.words = this.words.filter((w) => w.id !== word.id);
+      this.applyFilters();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Could not delete this word.');
+    }
   }
   
   applyFilters() {

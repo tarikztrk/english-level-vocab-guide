@@ -122,4 +122,68 @@ export class VocabularyDataService {
 
     return data;
   }
+
+  async createWord(word: Omit<VocabularyWord, 'id' | 'learned' | 'bookmarked'>): Promise<VocabularyWord> {
+    const { data, error } = await this.supabaseService.client
+      .from('words')
+      .insert(this.toWordRow(word))
+      .select('id, word, phonetic, meaning, level, category, example, audio_url, learned, bookmarked')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return this.toVocabularyWord(data as WordRow);
+  }
+
+  async updateWord(id: number, word: Omit<VocabularyWord, 'id' | 'learned' | 'bookmarked'>): Promise<VocabularyWord> {
+    const { data, error } = await this.supabaseService.client
+      .from('words')
+      .update(this.toWordRow(word))
+      .eq('id', id)
+      .select('id, word, phonetic, meaning, level, category, example, audio_url, learned, bookmarked')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return this.toVocabularyWord(data as WordRow);
+  }
+
+  async deleteWord(id: number): Promise<void> {
+    const { error } = await this.supabaseService.client.from('words').delete().eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  private toWordRow(word: Omit<VocabularyWord, 'id' | 'learned' | 'bookmarked'>) {
+    return {
+      word: word.word,
+      phonetic: word.phonetic || null,
+      meaning: word.meaning,
+      level: word.level || null,
+      category: word.category || null,
+      example: word.example || null,
+      audio_url: word.audioUrl || null
+    };
+  }
+
+  private toVocabularyWord(word: WordRow): VocabularyWord {
+    return {
+      id: Number(word.id),
+      word: word.word,
+      phonetic: word.phonetic ?? '',
+      meaning: word.meaning,
+      level: word.level ?? 'B1',
+      category: word.category ?? 'Academic',
+      example: word.example ?? '',
+      audioUrl: word.audio_url ?? '',
+      learned: Boolean(word.learned),
+      bookmarked: Boolean(word.bookmarked)
+    };
+  }
 }

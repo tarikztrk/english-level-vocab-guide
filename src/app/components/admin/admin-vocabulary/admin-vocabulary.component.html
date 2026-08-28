@@ -57,11 +57,7 @@
         <p class="font-body-md text-body-md text-on-surface-variant">{{ filteredWords.length }} matching entries</p>
       </div>
       <div class="flex gap-sm">
-        <button type="button" class="inline-flex items-center gap-xs rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-primary transition hover:bg-surface-container">
-          <span class="material-symbols-outlined text-[18px]">upload_file</span>
-          Bulk Upload
-        </button>
-        <button type="button" class="inline-flex items-center gap-xs rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark">
+        <button type="button" class="inline-flex items-center gap-xs rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark" (click)="openAddModal()">
           <span class="material-symbols-outlined text-[18px]">add</span>
           Add Word
         </button>
@@ -97,10 +93,10 @@
               </span>
             </td>
             <td class="px-sm py-sm text-right">
-              <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" title="Edit">
+              <button type="button" (click)="openEditModal(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" title="Edit">
                 <span class="material-symbols-outlined text-[20px]">edit</span>
               </button>
-              <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-error-container hover:text-error" title="Delete">
+              <button type="button" (click)="deleteWord(word)" class="rounded-lg p-xs text-outline transition hover:bg-error-container hover:text-error" title="Delete">
                 <span class="material-symbols-outlined text-[20px]">delete</span>
               </button>
             </td>
@@ -129,6 +125,79 @@
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center bg-on-surface/40 px-gutter py-lg" (click)="closeModal()">
+    <div class="w-full max-w-lg rounded-2xl bg-surface p-md shadow-[0_24px_64px_rgba(21,28,39,0.2)]" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between">
+        <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ editingWord ? 'Edit Word' : 'Add Word' }}</h2>
+        <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" (click)="closeModal()">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <form class="mt-md flex flex-col gap-sm" (ngSubmit)="saveWord()">
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Word</span>
+          <input [(ngModel)]="formModel.word" name="word" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Phonetic</span>
+          <input [(ngModel)]="formModel.phonetic" name="phonetic" type="text" placeholder="/ɪɡˈzæmpəl/" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Meaning</span>
+          <input [(ngModel)]="formModel.meaning" name="meaning" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+        </label>
+
+        <div class="grid grid-cols-2 gap-sm">
+          <label class="flex flex-col gap-1">
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Level</span>
+            <select [(ngModel)]="formModel.level" name="level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+              <option value="a1">A1 Beginner</option>
+              <option value="a2">A2 Elementary</option>
+              <option value="b1">B1 Intermediate</option>
+              <option value="b2">B2 Upper Intermediate</option>
+              <option value="c1">C1 Advanced</option>
+              <option value="c2">C2 Mastery</option>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-1">
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Category</span>
+            <select [(ngModel)]="formModel.category" name="category" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+              <option value="academic">Academic</option>
+              <option value="business">Business</option>
+              <option value="casual">Casual/Daily</option>
+              <option value="idioms">Idioms</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Example sentence</span>
+          <textarea [(ngModel)]="formModel.example" name="example" rows="2" class="rounded-xl border border-outline-variant bg-surface-container-lowest px-sm py-xs font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"></textarea>
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Audio URL</span>
+          <input [(ngModel)]="formModel.audioUrl" name="audioUrl" type="text" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+        </label>
+
+        <p *ngIf="errorMessage" class="font-body-md text-body-md text-error">{{ errorMessage }}</p>
+
+        <div class="mt-xs flex justify-end gap-sm">
+          <button type="button" (click)="closeModal()" class="rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface-variant transition hover:bg-surface-container">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="isSaving" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
+            {{ isSaving ? 'Saving...' : (editingWord ? 'Save Changes' : 'Add Word') }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </section>
