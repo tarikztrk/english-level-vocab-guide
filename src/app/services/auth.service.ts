@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Session, User } from '@supabase/supabase-js';
-import { BehaviorSubject, filter, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, filter, firstValueFrom, from, Observable, of, switchMap } from 'rxjs';
 import { SupabaseService } from './supabase.service';
 
 @Injectable({
@@ -15,6 +15,10 @@ export class AuthService {
 
   private readonly initializedSubject = new BehaviorSubject(false);
   readonly initialized$ = this.initializedSubject.asObservable();
+
+  readonly isAdmin$: Observable<boolean> = this.user$.pipe(
+    switchMap((user) => (user ? from(this.fetchIsAdmin(user.id)) : of(false)))
+  );
 
   constructor(private supabaseService: SupabaseService) {
     void this.loadSession();
@@ -72,6 +76,26 @@ export class AuthService {
     }
 
     await firstValueFrom(this.initialized$.pipe(filter(Boolean)));
+  }
+
+  async isAdmin(): Promise<boolean> {
+    await this.waitUntilInitialized();
+    return firstValueFrom(this.isAdmin$);
+  }
+
+  private async fetchIsAdmin(userId: string): Promise<boolean> {
+    const { data, error } = await this.supabaseService.client
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Could not load profile role', error);
+      return false;
+    }
+
+    return data?.role === 'admin';
   }
 
   private async loadSession() {

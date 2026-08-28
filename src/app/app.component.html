@@ -11,6 +11,7 @@
           <a routerLink="/" routerLinkActive="text-primary" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Dashboard</a>
           <a routerLink="/list" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Word List</a>
           <a routerLink="/flashcards" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Flashcards</a>
+          <a *ngIf="isAdmin$ | async" routerLink="/admin/dashboard" routerLinkActive="text-primary" class="rounded-full px-4 py-2 transition hover:bg-surface-container-low">Admin</a>
         </nav>
 
         <ng-container *ngIf="user$ | async as user; else signedOut">

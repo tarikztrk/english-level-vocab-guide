@@ -8,6 +8,7 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent {
   readonly user$ = this.authService.user$;
+  readonly isAdmin$ = this.authService.isAdmin$;
 
   constructor(private authService: AuthService) {}
 

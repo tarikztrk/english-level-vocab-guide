@@ -10,9 +10,12 @@ import { FlashcardsComponent } from './components/flashcards/flashcards.componen
 import { AuthComponent } from './components/auth/auth.component';
 import { AppRoutingModule } from './app-routing.module';
 import { SupabaseService } from './services/supabase.service';
+import { AdminDashboardComponent } from './components/admin/admin-dashboard/admin-dashboard.component';
+import { AdminVocabularyComponent } from './components/admin/admin-vocabulary/admin-vocabulary.component';
+import { AdminAnalyticsComponent } from './components/admin/admin-analytics/admin-analytics.component';
 
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, ListViewComponent, FlashcardsComponent, AuthComponent],
+  declarations: [AppComponent, DashboardComponent, ListViewComponent, FlashcardsComponent, AuthComponent, AdminDashboardComponent, AdminVocabularyComponent, AdminAnalyticsComponent],
   imports: [BrowserModule, CommonModule, FormsModule, AppRoutingModule],
   providers: [SupabaseService],
   bootstrap: [AppComponent]
