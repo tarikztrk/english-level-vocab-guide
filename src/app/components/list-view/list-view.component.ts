@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationRequiredError, VocabularyDataService, VocabularyWord } from '../../services/vocabulary-data.service';
+import { PronunciationService } from '../../services/pronunciation.service';
 
 @Component({
   selector: 'app-list-view',
@@ -9,7 +10,10 @@ import { AuthenticationRequiredError, VocabularyDataService, VocabularyWord } fr
 export class ListViewComponent implements OnInit {
   title = 'Word Explorer';
 
-  constructor(private vocabularyDataService: VocabularyDataService) {}
+  constructor(
+    private vocabularyDataService: VocabularyDataService,
+    private pronunciationService: PronunciationService
+  ) {}
   search = '';
   selectedCategory = 'All';
   selectedSort = 'A-Z';
@@ -80,6 +84,10 @@ export class ListViewComponent implements OnInit {
   setSort(option: string) {
     this.selectedSort = option;
     this.onFilterChange();
+  }
+
+  listen(word: VocabularyWord) {
+    this.pronunciationService.play(word);
   }
 
   toggleLearned(word: VocabularyWord) {

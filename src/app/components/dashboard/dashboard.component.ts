@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationRequiredError, VocabularyDataService, VocabularyWord } from '../../services/vocabulary-data.service';
+import { PronunciationService } from '../../services/pronunciation.service';
 
 interface LevelTab {
   label: string;
@@ -14,7 +15,10 @@ interface LevelTab {
 export class DashboardComponent implements OnInit {
   title = 'LexiLearn';
 
-  constructor(private vocabularyDataService: VocabularyDataService) {}
+  constructor(
+    private vocabularyDataService: VocabularyDataService,
+    private pronunciationService: PronunciationService
+  ) {}
 
   tabs: LevelTab[] = [
     { label: 'All Levels', active: true },
@@ -91,6 +95,10 @@ export class DashboardComponent implements OnInit {
 
   onSearchChange() {
     this.onFilterChange();
+  }
+
+  listen(item: VocabularyWord) {
+    this.pronunciationService.play(item);
   }
 
   toggleLearned(item: VocabularyWord) {

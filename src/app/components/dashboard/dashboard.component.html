@@ -150,6 +150,9 @@
                 <p class="text-sm leading-6">{{ item.meaning }}</p>
               </div>
               <div class="flex flex-wrap items-center gap-3 text-sm">
+                <button (click)="listen(item)" title="Listen" class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 p-2 text-primary transition hover:bg-primary/5">
+                  <span class="material-symbols-outlined">volume_up</span>
+                </button>
                 <button (click)="toggleLearned(item)" class="rounded-full border px-4 py-2 text-sm font-semibold transition" [ngClass]="item.learned ? 'border-secondary bg-secondary/10 text-secondary' : 'border-outline-variant/30 text-primary hover:bg-primary/5'">
                   {{ item.learned ? 'Learned' : 'Mark Learned' }}
                 </button>

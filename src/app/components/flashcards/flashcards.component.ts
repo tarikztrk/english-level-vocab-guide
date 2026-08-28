@@ -4,6 +4,7 @@ import {
   VocabularyDataService,
   VocabularyWord,
 } from "../../services/vocabulary-data.service";
+import { PronunciationService } from "../../services/pronunciation.service";
 
 interface Flashcard {
   id?: number;
@@ -29,7 +30,10 @@ export class FlashcardsComponent implements OnInit {
   progressMessage = "";
   private progressMessageTimeout?: ReturnType<typeof setTimeout>;
 
-  constructor(private vocabularyDataService: VocabularyDataService) {}
+  constructor(
+    private vocabularyDataService: VocabularyDataService,
+    private pronunciationService: PronunciationService,
+  ) {}
 
   private readonly fallbackCards: Flashcard[] = [
     {
@@ -106,18 +110,8 @@ export class FlashcardsComponent implements OnInit {
   }
 
   listenToPronunciation() {
-    const card = this.currentCard;
-    if (!card) return;
-
-    if (card.audioUrl) {
-      new Audio(card.audioUrl).play().catch((error) => {
-        console.error("Could not play audio file", error);
-        this.speak(card.front);
-      });
-      return;
-    }
-
-    this.speak(card.front);
+    if (!this.currentCard) return;
+    this.pronunciationService.play({ word: this.currentCard.front, audioUrl: this.currentCard.audioUrl });
   }
 
   toggleLearned(card: Flashcard) {
@@ -136,18 +130,6 @@ export class FlashcardsComponent implements OnInit {
           console.error("Could not save learned state", error);
         });
     }
-  }
-
-  private speak(text: string) {
-    if (!("speechSynthesis" in window)) {
-      this.showProgressMessage("Audio playback is not supported in this browser.");
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
   }
 
   nextCard() {
