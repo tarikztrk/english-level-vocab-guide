@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  /* Kept in sync with the real header height by AppComponent; the literal value
+     here is only the pre-measurement fallback for sticky page sections. */
+  --app-header-height: 76px;
   --color-primary: #1a56db;
   --color-secondary: #10b981;
   --color-tertiary: #f59e0b;
@@ -36,6 +39,12 @@ textarea {
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Filled icons give on/off states a shape difference, so the state does not
+   rest on color alone (bookmarked words, completed items). */
+.material-symbols-outlined.is-filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Keyboard users must keep a visible focus ring. Pointer clicks stay clean

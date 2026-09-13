@@ -1,109 +1,194 @@
 <section class="mx-auto flex w-full max-w-container-max flex-col gap-lg px-gutter py-lg">
-  <div class="flex flex-col gap-md rounded-3xl border border-outline-variant bg-surface p-md shadow-[0_16px_40px_rgba(21,28,39,0.06)]">
-    <div class="flex flex-col justify-between gap-md lg:flex-row lg:items-end">
-      <div>
-        <p class="font-label-caps text-label-caps uppercase text-primary">Yönetim Paneli</p>
-        <h1 class="mt-xs font-display-lg-mobile text-display-lg-mobile text-on-surface md:font-display-lg md:text-display-lg">
-          Kelime Yönetimi
-        </h1>
-        <p class="mt-xs max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
-          Kelime veritabanını arayın, filtreleyin ve CEFR seviyelerine göre inceleyin.
-        </p>
-      </div>
+  <app-admin-header title="Kelime Yönetimi">
+    <p class="max-w-2xl font-body-lg text-body-lg text-on-surface-variant" *ngIf="!isLoading">
+      <span class="font-mono">{{ totalCount }}</span> kayıt ·
+      <span class="font-mono">{{ publishedCount }}</span> yayında ·
+      <span class="font-mono text-status-draft">{{ missingFieldCount }}</span> eksik alan
+    </p>
 
-      <nav class="flex flex-wrap gap-sm">
-        <a routerLink="/admin/dashboard" routerLinkActive="bg-primary !text-on-primary shadow-sm !border-transparent" class="rounded-full border border-outline-variant px-4 py-2 font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Panel
-        </a>
-        <a routerLink="/admin/vocabulary" routerLinkActive="bg-primary !text-on-primary shadow-sm !border-transparent" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full border border-outline-variant px-4 py-2 font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Kelimeler
-        </a>
-        <a routerLink="/admin/analytics" routerLinkActive="bg-primary !text-on-primary shadow-sm !border-transparent" class="rounded-full border border-outline-variant px-4 py-2 font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Analiz
-        </a>
-      </nav>
+    <div class="flex flex-wrap justify-end gap-sm">
+      <button type="button" (click)="openImport()" class="inline-flex items-center gap-xs rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface transition hover:bg-surface-container">
+        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">upload_file</span>
+        CSV içe aktar
+      </button>
+      <button type="button" (click)="exportList()" [disabled]="filteredWords.length === 0" class="inline-flex items-center gap-xs rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50">
+        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">download</span>
+        Dışa aktar
+      </button>
+      <button type="button" class="inline-flex items-center gap-xs rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark" (click)="openAddModal()">
+        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">add</span>
+        Yeni kelime
+      </button>
     </div>
 
     <div class="grid grid-cols-1 gap-sm md:grid-cols-12">
-      <label class="relative md:col-span-6">
+      <label class="relative md:col-span-4">
         <span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">search</span>
-        <span class="sr-only">Kelime ara</span>
-        <input [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" class="h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-xl pr-sm font-body-md text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Kelime veya anlam ara..." type="text" />
+        <span class="sr-only">Kelime, anlam veya ID ara</span>
+        <input id="admin-word-search" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" class="h-11 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-xl pr-9 font-body-md text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Kelime, anlam veya ID ara…" type="text" />
+        <span aria-hidden="true" class="pointer-events-none absolute right-sm top-1/2 -translate-y-1/2 rounded border border-outline-variant bg-surface px-1.5 py-0.5 font-mono text-[11px] text-outline">/</span>
       </label>
 
-      <select [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()" aria-label="Seviyeye göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
+      <select [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()" aria-label="Seviyeye göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2">
         <option value="">Tüm Seviyeler</option>
         <option *ngFor="let level of levelOptions" [value]="level">{{ level }}</option>
       </select>
 
-      <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()" aria-label="Kategoriye göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-3">
+      <select [(ngModel)]="selectedWordType" (ngModelChange)="applyFilters()" aria-label="Sözcük türüne göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2">
+        <option value="">Tüm Türler</option>
+        <option *ngFor="let type of wordTypes" [value]="type">{{ type }}</option>
+      </select>
+
+      <select [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()" aria-label="Duruma göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2">
+        <option value="">Durum: tümü</option>
+        <option value="draft">Taslak</option>
+        <option value="published">Yayında</option>
+        <option value="archived">Arşivde</option>
+      </select>
+
+      <select [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()" aria-label="Kategoriye göre filtrele" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 md:col-span-2">
         <option value="">Tüm Kategoriler</option>
         <option *ngFor="let category of categoryOptions" [value]="category">{{ category }}</option>
       </select>
     </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="font-body-md text-body-md text-on-surface-variant">Eksik alan kuyruğu:</span>
+      <button type="button" (click)="setMissingFieldFilter('phonetic')" [ngClass]="missingFieldFilter === 'phonetic' ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant text-on-surface-variant'" class="h-8 rounded-lg border px-3 text-sm font-semibold transition">IPA'sı olmayanlar</button>
+      <button type="button" (click)="setMissingFieldFilter('example')" [ngClass]="missingFieldFilter === 'example' ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant text-on-surface-variant'" class="h-8 rounded-lg border px-3 text-sm font-semibold transition">Örnek cümlesi olmayanlar</button>
+      <button type="button" (click)="setMissingFieldFilter('audioUrl')" [ngClass]="missingFieldFilter === 'audioUrl' ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant text-on-surface-variant'" class="h-8 rounded-lg border px-3 text-sm font-semibold transition">Sesi olmayanlar</button>
+      <button type="button" *ngIf="hasActiveFilters" (click)="clearFilters()" class="text-sm font-semibold text-primary underline-offset-2 hover:underline">Filtreleri temizle</button>
+    </div>
+  </app-admin-header>
+
+  <!-- Toplu eylem çubuğu -->
+  <div *ngIf="selectedIds.size > 0" class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-on-surface px-4 py-3">
+    <div class="flex items-center gap-3">
+      <span class="text-sm font-semibold text-white">{{ selectedIds.size }} kelime seçildi</span>
+      <button type="button" (click)="selectAllFiltered()" class="text-sm text-white/60 underline-offset-2 hover:underline">Tümünü seç ({{ filteredWords.length }})</button>
+      <button type="button" (click)="clearSelection()" class="text-sm text-white/60 underline-offset-2 hover:underline">Seçimi temizle</button>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <label class="inline-flex h-8 items-center rounded-lg border border-white/20 bg-transparent px-2 text-xs font-semibold text-white">
+        <select (change)="onBulkLevelChange($event)" class="bg-transparent text-xs font-semibold text-white focus:outline-none">
+          <option value="" disabled selected>Seviye değiştir</option>
+          <option *ngFor="let level of cefrLevels" [value]="level" class="text-on-surface">{{ level }}</option>
+        </select>
+      </label>
+      <button type="button" (click)="bulkPublish()" class="h-8 rounded-lg border border-white/20 px-3 text-xs font-semibold text-white transition hover:bg-white/10">Yayınla</button>
+      <button type="button" (click)="bulkArchive()" class="h-8 rounded-lg border border-white/20 px-3 text-xs font-semibold text-white transition hover:bg-white/10">Arşivle</button>
+      <button type="button" (click)="bulkDeletePermanently()" class="h-8 rounded-lg bg-error px-3 text-xs font-semibold text-white transition hover:opacity-90">Kalıcı sil</button>
+    </div>
   </div>
 
+  <p *ngIf="errorMessage" class="rounded-xl border border-error/30 bg-error-container px-4 py-3 font-body-md text-body-md text-on-error-container">{{ errorMessage }}</p>
+
   <div class="overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
-    <div class="flex flex-col justify-between gap-sm border-b border-outline-variant bg-surface-container-lowest px-md py-sm sm:flex-row sm:items-center">
-      <div>
-        <h2 class="font-headline-sm text-headline-sm text-on-surface">Kelimeler</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant">{{ filteredWords.length }} kelime bulundu</p>
+
+    <!-- Yükleniyor -->
+    <div *ngIf="isLoading" class="flex flex-col gap-2 p-md" aria-live="polite" aria-busy="true">
+      <span class="sr-only">Kelimeler yükleniyor…</span>
+      <div *ngFor="let placeholder of [1,2,3,4,5]" class="h-14 animate-pulse rounded-xl bg-surface-container-low"></div>
+    </div>
+
+    <!-- Boş durum: ilk kullanım -->
+    <div *ngIf="!isLoading && totalCount === 0" class="flex flex-col items-start gap-3 p-lg">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant">
+        <span class="material-symbols-outlined" aria-hidden="true">inbox</span>
       </div>
-      <div class="flex gap-sm">
-        <button type="button" class="inline-flex items-center gap-xs rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark" (click)="openAddModal()">
-          <span class="material-symbols-outlined text-[18px]">add</span>
-          Kelime Ekle
-        </button>
+      <h3 class="font-headline-sm text-headline-sm text-on-surface">Henüz kelime yok</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant">Hazır bir listeyi CSV olarak yükleyebilir ya da tek tek ekleyebilirsin.</p>
+      <div class="flex gap-2">
+        <button type="button" (click)="openImport()" class="inline-flex h-10 items-center rounded-xl bg-primary px-4 font-label-caps text-label-caps uppercase text-on-primary transition hover:bg-primary-dark">CSV yükle</button>
+        <button type="button" (click)="downloadTemplate()" class="inline-flex h-10 items-center rounded-xl border border-outline-variant px-4 font-label-caps text-label-caps uppercase text-on-surface transition hover:bg-surface-container">Şablonu indir</button>
       </div>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full min-w-[760px] border-collapse text-left">
+    <div *ngIf="!isLoading && totalCount > 0" class="overflow-x-auto">
+      <table class="w-full min-w-[900px] border-collapse text-left">
         <thead>
           <tr class="border-b border-outline-variant bg-surface-container-low">
-            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Kelime / Anlam</th>
+            <th class="w-10 px-sm py-sm">
+              <input type="checkbox" [checked]="isPageFullySelected" (change)="toggleSelectPage()" aria-label="Bu sayfadaki tüm kelimeleri seç" class="h-4 w-4 rounded border-outline" />
+            </th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Kelime</th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">IPA</th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Türkçe anlam</th>
+            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Tür</th>
             <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Seviye</th>
-            <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Kategori</th>
             <th class="px-sm py-sm font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Durum</th>
-            <th class="px-sm py-sm text-right font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">İşlemler</th>
+            <th class="px-sm py-sm text-right font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">Eylem</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-outline-variant">
-          <tr *ngFor="let word of paginatedWords" class="transition hover:bg-surface-container-lowest">
+          <tr *ngFor="let word of paginatedWords" [ngClass]="isSelected(word) ? 'bg-primary/5' : ''" class="transition hover:bg-surface-container-lowest">
             <td class="px-sm py-sm">
-              <div class="font-headline-sm text-headline-sm text-on-surface">{{ word.word }}</div>
-              <div class="font-body-md text-body-md text-on-surface-variant">{{ word.meaning }}</div>
-              <div *ngIf="word.phonetic" class="mt-1 font-phonetic-label text-phonetic-label text-outline">{{ word.phonetic }}</div>
+              <input type="checkbox" [checked]="isSelected(word)" (change)="toggleSelect(word)" [attr.aria-label]="word.word + ' kelimesini seç'" class="h-4 w-4 rounded border-outline" />
+            </td>
+            <td class="px-sm py-sm font-semibold text-on-surface">
+              {{ word.word }}
+              <span *ngIf="isDuplicate(word)" class="ml-1 rounded-md bg-status-blocked-bg px-1.5 py-0.5 text-[11px] font-medium text-status-duplicate">yinelenen</span>
             </td>
             <td class="px-sm py-sm">
-              <span class="inline-flex rounded-full bg-primary-fixed px-3 py-1 font-label-caps text-label-caps uppercase text-on-primary-fixed">{{ word.level }}</span>
+              <span *ngIf="word.phonetic; else phoneticMissing" class="font-mono text-xs text-on-surface-variant">{{ word.phonetic }}</span>
+              <ng-template #phoneticMissing><span class="rounded-md bg-status-draft-bg px-1.5 py-0.5 text-[11px] font-semibold text-status-draft">eksik</span></ng-template>
             </td>
-            <td class="px-sm py-sm font-body-md text-body-md text-on-surface-variant">{{ word.category }}</td>
+            <td class="px-sm py-sm text-on-surface-variant" (dblclick)="startInlineEdit(word)">
+              <ng-container *ngIf="editingCell?.id === word.id; else meaningDisplay">
+                <input [(ngModel)]="inlineEditValue" (keydown.enter)="commitInlineEdit(word)" (keydown.escape)="cancelInlineEdit()" (blur)="commitInlineEdit(word)" autofocus class="h-8 w-full rounded-md border border-primary bg-surface px-2 text-sm focus:outline-none" />
+              </ng-container>
+              <ng-template #meaningDisplay>
+                <span class="cursor-text" title="Düzenlemek için çift tıklayın">{{ word.meaning }}</span>
+              </ng-template>
+            </td>
             <td class="px-sm py-sm">
-              <span class="inline-flex items-center gap-xs rounded-full px-3 py-1 font-label-caps text-label-caps" [ngClass]="word.learned ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container text-on-surface-variant'">
-                <span class="h-2 w-2 rounded-full" [ngClass]="word.learned ? 'bg-secondary' : 'bg-outline'"></span>
-                {{ word.learned ? 'Öğrenildi' : 'Aktif' }}
+              <span *ngIf="word.wordType; else typeMissing" class="text-on-surface-variant">{{ word.wordType }}</span>
+              <ng-template #typeMissing><span class="rounded-md bg-status-draft-bg px-1.5 py-0.5 text-[11px] font-semibold text-status-draft">eksik</span></ng-template>
+            </td>
+            <td class="px-sm py-sm">
+              <span class="inline-flex h-5 items-center rounded-[5px] px-1.5 text-[11px] font-semibold tracking-wide" [ngStyle]="levelBadgeStyle(word.level)">{{ word.level }}</span>
+            </td>
+            <td class="px-sm py-sm">
+              <span class="inline-flex items-center gap-xs rounded-full px-3 py-1 text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-status-live-bg text-status-live': word.status === 'published',
+                      'bg-status-draft-bg text-status-draft': word.status === 'draft',
+                      'bg-surface-container text-on-surface-variant': word.status === 'archived'
+                    }">
+                <span aria-hidden="true">{{ statusIcon(word.status) }}</span> {{ statusLabel(word.status) }}
               </span>
             </td>
             <td class="px-sm py-sm text-right">
-              <button type="button" (click)="openEditModal(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" [attr.aria-label]="word.word + ' kelimesini düzenle'" title="Düzenle">
-                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">edit</span>
-              </button>
-              <button type="button" (click)="deleteWord(word)" class="rounded-lg p-xs text-outline transition hover:bg-error-container hover:text-error" [attr.aria-label]="word.word + ' kelimesini sil'" title="Sil">
-                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">delete</span>
-              </button>
+              <div class="row-menu-anchor relative inline-flex items-center gap-1">
+                <button type="button" (click)="openEditModal(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" [attr.aria-label]="word.word + ' kelimesini düzenle'" title="Düzenle">
+                  <span class="material-symbols-outlined text-[20px]" aria-hidden="true">edit</span>
+                </button>
+                <button type="button" (click)="duplicateWord(word)" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" [attr.aria-label]="word.word + ' kelimesini kopyala'" title="Kopyala">
+                  <span class="material-symbols-outlined text-[20px]" aria-hidden="true">content_copy</span>
+                </button>
+                <button type="button" (click)="openRowMenuId = openRowMenuId === word.id ? null : word.id" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" [attr.aria-label]="word.word + ' için daha fazla işlem'" title="Daha fazla">
+                  <span class="material-symbols-outlined text-[20px]" aria-hidden="true">more_horiz</span>
+                </button>
+
+                <div *ngIf="openRowMenuId === word.id" class="absolute right-0 top-full z-20 mt-1 w-44 rounded-xl border border-outline-variant bg-surface py-1 text-left shadow-lg">
+                  <button *ngIf="word.status !== 'published'" type="button" (click)="publishWord(word); openRowMenuId = null" [disabled]="!canPublish(word)" class="block w-full px-3 py-2 text-left text-sm text-on-surface hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-40">Yayınla</button>
+                  <button *ngIf="word.status !== 'archived'" type="button" (click)="archiveWord(word); openRowMenuId = null" class="block w-full px-3 py-2 text-left text-sm text-on-surface hover:bg-surface-container">Arşivle</button>
+                  <button *ngIf="word.status === 'archived'" type="button" (click)="restoreWord(word); openRowMenuId = null" class="block w-full px-3 py-2 text-left text-sm text-on-surface hover:bg-surface-container">Geri yükle (yayınla)</button>
+                </div>
+              </div>
             </td>
           </tr>
           <tr *ngIf="filteredWords.length === 0">
-            <td colspan="5" class="px-md py-lg text-center font-body-md text-body-md text-on-surface-variant">
+            <td colspan="8" class="px-md py-lg text-center font-body-md text-body-md text-on-surface-variant">
               Seçili filtrelerle eşleşen kelime yok.
+              <button type="button" (click)="clearFilters()" class="ml-1 font-semibold text-primary underline-offset-2 hover:underline">Filtreleri temizle</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="flex flex-col justify-between gap-sm border-t border-outline-variant bg-surface-container-lowest px-md py-sm sm:flex-row sm:items-center">
+    <div *ngIf="!isLoading && filteredWords.length > 0" class="flex flex-col justify-between gap-sm border-t border-outline-variant bg-surface-container-lowest px-md py-sm sm:flex-row sm:items-center">
       <span class="font-body-md text-body-md text-on-surface-variant">
         {{ filteredWords.length }} kelimeden {{ firstItemIndex }}-{{ lastItemIndex }} arası gösteriliyor
       </span>
@@ -121,50 +206,75 @@
     </div>
   </div>
 
+  <!-- Geri al bildirimi -->
+  <div *ngIf="undoSnackbar" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-[90] flex max-w-sm items-center justify-between gap-4 rounded-2xl bg-on-surface px-4 py-3 text-sm text-white shadow-xl">
+    <span>{{ undoSnackbar.message }}</span>
+    <button type="button" (click)="runUndo()" class="font-semibold text-undo-action hover:underline">Geri al</button>
+  </div>
+
+  <!-- Ekle/Düzenle modalı -->
   <div *ngIf="isModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-on-surface/40 px-gutter py-lg" (click)="closeModal()">
     <div class="my-auto max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-surface p-md shadow-[0_24px_64px_rgba(21,28,39,0.2)]" role="dialog" aria-modal="true" aria-labelledby="word-modal-title" (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between">
-        <h2 id="word-modal-title" class="font-headline-sm text-headline-sm text-on-surface">{{ editingWord ? 'Kelimeyi Düzenle' : 'Kelime Ekle' }}</h2>
+        <div>
+          <h2 id="word-modal-title" class="font-headline-sm text-headline-sm text-on-surface">{{ editingWord ? 'Kelimeyi Düzenle' : 'Kelime Ekle' }}</h2>
+          <p *ngIf="editingWord" class="mt-0.5 text-xs text-on-surface-variant">Son değişiklik: {{ editingWord.updatedByEmail || '—' }} · {{ editingWord.updatedAt | date:'d MMM HH:mm' }}</p>
+        </div>
         <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" aria-label="Pencereyi kapat" (click)="closeModal()">
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
         </button>
       </div>
 
-      <form class="mt-md flex flex-col gap-sm" (ngSubmit)="saveWord()">
+      <p *ngIf="draftRestoredNotice" class="mt-2 rounded-lg bg-primary/10 px-3 py-2 text-xs font-semibold text-primary">Kaydedilmemiş taslak geri yüklendi.</p>
+
+      <div *ngIf="publishBlockedFields.length > 0" class="mt-3 rounded-lg border border-status-blocked-border bg-status-blocked-bg px-3 py-2">
+        <p class="text-sm font-semibold text-status-blocked">{{ publishBlockedFields.length }} alan yayına engel</p>
+        <p class="mt-0.5 text-xs text-status-blocked">Eksik: {{ publishBlockedFieldLabels }}</p>
+      </div>
+
+      <form class="mt-md flex flex-col gap-sm" (ngSubmit)="saveWord()" (input)="onFormChange()" (change)="onFormChange()">
         <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Kelime</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Kelime *</span>
           <input [(ngModel)]="formModel.word" name="word" type="text" required autofocus class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
-        </label>
-
-        <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Okunuş</span>
-          <input [(ngModel)]="formModel.phonetic" name="phonetic" type="text" placeholder="/ɪɡˈzæmpəl/" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
-        </label>
-
-        <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Anlam</span>
-          <input [(ngModel)]="formModel.meaning" name="meaning" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
         </label>
 
         <div class="grid grid-cols-2 gap-sm">
           <label class="flex flex-col gap-1">
-            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Seviye</span>
-            <select [(ngModel)]="formModel.level" name="level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20">
-              <option *ngFor="let level of cefrLevels" [value]="level">{{ level }}</option>
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Sözcük türü *</span>
+            <select [(ngModel)]="formModel.wordType" name="wordType" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20">
+              <option value="">Seçiniz</option>
+              <option *ngFor="let type of wordTypes" [value]="type">{{ type }}</option>
             </select>
           </label>
 
           <label class="flex flex-col gap-1">
-            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Kategori</span>
-            <input [(ngModel)]="formModel.category" name="category" type="text" list="category-options" placeholder="Akademik" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
-            <datalist id="category-options">
-              <option *ngFor="let category of categoryOptions" [value]="category"></option>
-            </datalist>
+            <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Seviye *</span>
+            <select [(ngModel)]="formModel.level" name="level" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20">
+              <option *ngFor="let level of cefrLevels" [value]="level">{{ level }}</option>
+            </select>
           </label>
         </div>
 
         <label class="flex flex-col gap-1">
-          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Örnek cümle</span>
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">IPA *</span>
+          <input [(ngModel)]="formModel.phonetic" name="phonetic" type="text" placeholder="/ɪɡˈzæmpəl/" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-mono text-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Türkçe anlam *</span>
+          <input [(ngModel)]="formModel.meaning" name="meaning" type="text" required class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Kategori</span>
+          <input [(ngModel)]="formModel.category" name="category" type="text" list="category-options" placeholder="Akademik" class="h-11 rounded-xl border border-outline-variant bg-surface-container-lowest px-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20" />
+          <datalist id="category-options">
+            <option *ngFor="let category of categoryOptions" [value]="category"></option>
+          </datalist>
+        </label>
+
+        <label class="flex flex-col gap-1">
+          <span class="font-label-caps text-label-caps uppercase text-on-surface-variant">Örnek cümle *</span>
           <textarea [(ngModel)]="formModel.example" name="example" rows="2" class="rounded-xl border border-outline-variant bg-surface-container-lowest px-sm py-xs font-body-md text-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20"></textarea>
         </label>
 
@@ -179,11 +289,112 @@
           <button type="button" (click)="closeModal()" class="rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface-variant transition hover:bg-surface-container">
             İptal
           </button>
-          <button type="submit" [disabled]="isSaving" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
-            {{ isSaving ? 'Kaydediliyor...' : (editingWord ? 'Değişiklikleri Kaydet' : 'Kelime Ekle') }}
+          <button type="submit" [disabled]="isSaving" class="rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50">
+            {{ isSaving ? 'Kaydediliyor…' : 'Taslak kaydet' }}
+          </button>
+          <button type="button" (click)="publishFromModal()" [disabled]="isSaving || publishBlockedFields.length > 0" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-outline-variant disabled:text-on-surface-variant">
+            Yayınla
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- CSV içe aktarma sihirbazı -->
+  <div *ngIf="isImportOpen" class="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-on-surface/40 px-gutter py-lg" (click)="closeImport()">
+    <div class="my-auto max-h-full w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-md shadow-[0_24px_64px_rgba(21,28,39,0.2)]" role="dialog" aria-modal="true" aria-labelledby="import-modal-title" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between">
+        <h2 id="import-modal-title" class="font-headline-sm text-headline-sm text-on-surface">CSV İçe Aktarma</h2>
+        <button type="button" class="rounded-lg p-xs text-outline transition hover:bg-surface-container hover:text-primary" aria-label="Pencereyi kapat" (click)="closeImport()">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
+        </button>
+      </div>
+
+      <div class="mt-md flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" [ngClass]="importStep >= 1 ? 'text-primary' : 'text-on-surface-variant'">
+          <span class="flex h-5 w-5 items-center justify-center rounded-full text-[11px]" [ngClass]="importStep > 1 ? 'bg-status-live-bg text-status-live' : 'bg-primary text-white'">{{ importStep > 1 ? '✓' : '1' }}</span>
+          Yükle
+        </span>
+        <span class="h-px flex-1 bg-outline-variant"></span>
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" [ngClass]="importStep >= 2 ? 'text-primary' : 'text-on-surface-variant'">
+          <span class="flex h-5 w-5 items-center justify-center rounded-full text-[11px]" [ngClass]="importStep > 2 ? 'bg-status-live-bg text-status-live' : importStep === 2 ? 'bg-primary text-white' : 'border border-outline-variant'">{{ importStep > 2 ? '✓' : '2' }}</span>
+          Eşle
+        </span>
+        <span class="h-px flex-1 bg-outline-variant"></span>
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold" [ngClass]="importStep >= 3 ? 'text-primary' : 'text-on-surface-variant'">
+          <span class="flex h-5 w-5 items-center justify-center rounded-full text-[11px]" [ngClass]="importStep === 3 ? 'bg-primary text-white' : 'border border-outline-variant'">3</span>
+          Onayla
+        </span>
+      </div>
+
+      <!-- Adım 1: Yükle -->
+      <div *ngIf="importStep === 1" class="mt-md flex flex-col gap-3">
+        <p class="text-sm text-on-surface-variant">UTF-8 kodlamalı bir CSV dosyası seçin. İlk satır sütun başlığı olarak kullanılır.</p>
+        <input type="file" accept=".csv,text/csv" (change)="onImportFileSelected($event)" aria-label="CSV dosyası seç" class="rounded-xl border border-dashed border-outline-variant p-4 text-sm" />
+        <button type="button" (click)="downloadTemplate()" class="self-start text-sm font-semibold text-primary hover:underline">Şablonu indir</button>
+      </div>
+
+      <!-- Adım 2: Eşle -->
+      <div *ngIf="importStep === 2" class="mt-md flex flex-col gap-3">
+        <div class="flex items-center justify-between rounded-xl border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm">
+          <span class="font-mono">{{ importFileName }}</span>
+          <span class="text-on-surface-variant">{{ importRows.length }} satır · {{ importHeaders.length }} sütun</span>
+        </div>
+
+        <div class="text-xs font-bold uppercase tracking-wide text-on-surface-variant">Sütun eşleme</div>
+        <div class="flex flex-col gap-2">
+          <div *ngFor="let header of importHeaders" class="grid grid-cols-[1fr_18px_1fr] items-center gap-2 text-sm">
+            <span class="h-9 truncate rounded-lg border border-outline-variant px-2.5 font-mono text-xs leading-9 text-on-surface-variant">{{ header }}</span>
+            <span class="text-center text-on-surface-variant">→</span>
+            <select [(ngModel)]="importColumnMap[header]" [name]="'map-' + header" class="h-9 rounded-lg border border-outline-variant px-2 text-sm">
+              <option *ngFor="let field of importTargetFields" [value]="field.value">{{ field.label }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-2 flex justify-end gap-2">
+          <button type="button" (click)="importStep = 1" class="rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface-variant transition hover:bg-surface-container">Geri</button>
+          <button type="button" (click)="goToImportPreview()" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark">Önizle</button>
+        </div>
+      </div>
+
+      <!-- Adım 3: Onayla -->
+      <div *ngIf="importStep === 3" class="mt-md flex flex-col gap-3">
+        <div *ngIf="!importSummary">
+          <div class="text-xs font-bold uppercase tracking-wide text-on-surface-variant">Önizleme sonucu</div>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span class="inline-flex h-8 items-center rounded-lg bg-status-live-bg px-3 text-sm font-semibold text-status-live">✓ {{ importNewCount }} yeni</span>
+            <span class="inline-flex h-8 items-center rounded-lg bg-status-draft-bg px-3 text-sm font-semibold text-status-draft">◑ {{ importDuplicateCount }} yinelenen</span>
+            <span class="inline-flex h-8 items-center rounded-lg bg-status-blocked-bg px-3 text-sm font-semibold text-status-blocked">! {{ importErrorCount }} hatalı satır</span>
+          </div>
+
+          <div class="mt-3 flex items-center gap-2 text-sm">
+            <span class="text-on-surface-variant">Yinelenenler için:</span>
+            <label class="inline-flex items-center gap-1.5">
+              <input type="radio" name="dupStrategy" [checked]="!importOverwriteDuplicates" (change)="importOverwriteDuplicates = false" />
+              atla
+            </label>
+            <label class="inline-flex items-center gap-1.5">
+              <input type="radio" name="dupStrategy" [checked]="importOverwriteDuplicates" (change)="importOverwriteDuplicates = true" />
+              üzerine yaz
+            </label>
+            <button *ngIf="importErrorCount > 0" type="button" (click)="downloadErrorReport()" class="ml-auto font-semibold text-primary hover:underline">Hata raporunu indir</button>
+          </div>
+
+          <div class="mt-4 flex justify-end gap-2">
+            <button type="button" (click)="importStep = 2" class="rounded-xl border border-outline-variant px-sm py-xs font-label-caps text-label-caps uppercase text-on-surface-variant transition hover:bg-surface-container">Geri</button>
+            <button type="button" (click)="confirmImport()" [disabled]="isImporting || importNewCount + importDuplicateCount === 0" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
+              {{ isImporting ? 'Aktarılıyor…' : (importNewCount + (importOverwriteDuplicates ? importDuplicateCount : 0)) + ' kelimeyi taslak olarak aktar' }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="importSummary" class="rounded-xl border border-status-live-bg bg-status-live-bg p-4 text-sm text-status-live">
+          <p class="font-semibold">İçe aktarma tamamlandı.</p>
+          <p class="mt-1">{{ importSummary.created.length }} yeni taslak eklendi, {{ importSummary.overwritten.length }} kayıt güncellendi, {{ importSummary.skipped }} yinelenen atlandı, {{ importSummary.errors }} satır hatalıydı.</p>
+          <button type="button" (click)="closeImport()" class="mt-3 rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary shadow-sm transition hover:bg-primary-dark">Kapat</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>

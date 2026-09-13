@@ -4,7 +4,28 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        // IPA characters (e.g. /ˈkraʊ.dɪd/) render with broken glyphs in the UI
+        // sans font; a dedicated mono face keeps phonetics legible.
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        // Admin panel headings/wordmark use a serif pairing, per the design review.
+        serif: ['"Newsreader"', 'Georgia', 'serif']
+      },
       colors: {
+        // Semantic tokens for admin chrome and content status, so the same
+        // state never gets two different hex values across screens.
+        'admin-bar': '#111723',
+        'admin-bar-muted': '#9BA4B6',
+        'status-draft': '#8A4B08',
+        'status-draft-bg': '#FDF3E7',
+        'status-live': '#1A5C31',
+        'status-live-bg': '#E9F4EC',
+        'status-blocked': '#8E1D14',
+        'status-blocked-bg': '#FDF0EF',
+        'status-blocked-border': '#F3C9C5',
+        'status-duplicate': '#B42318',
+        'undo-action': '#7FA8FF',
+
         // App Legacy Colors
         'primary-dark': '#1647BB',
         tertiary: '#F59E0B',

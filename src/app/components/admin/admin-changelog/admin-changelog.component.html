@@ -1,0 +1,33 @@
+<section class="mx-auto flex w-full max-w-container-max flex-col gap-lg px-gutter py-lg">
+  <app-admin-header title="Değişiklik Günlüğü">
+    <p class="max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
+      Kim, ne zaman, hangi kelimeyi değiştirdi. En yeni 100 kayıt.
+    </p>
+  </app-admin-header>
+
+  <div *ngIf="isLoading" class="flex flex-col gap-2 rounded-2xl border border-outline-variant bg-surface p-md">
+    <div *ngFor="let placeholder of [1,2,3,4,5,6]" class="h-12 animate-pulse rounded-xl bg-surface-container-low"></div>
+  </div>
+
+  <div *ngIf="!isLoading && loadError" class="rounded-2xl border border-error/30 bg-error-container p-md font-body-md text-body-md text-on-error-container">
+    {{ loadError }}
+  </div>
+
+  <div *ngIf="!isLoading && !loadError" class="overflow-hidden rounded-2xl border border-outline-variant bg-surface shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+    <div *ngIf="entries.length === 0" class="p-lg text-center font-body-md text-body-md text-on-surface-variant">
+      Henüz kayıtlı bir değişiklik yok.
+    </div>
+
+    <ul *ngIf="entries.length > 0" class="divide-y divide-outline-variant">
+      <li *ngFor="let entry of entries" class="flex flex-wrap items-baseline justify-between gap-2 px-md py-3">
+        <p class="font-body-md text-body-md text-on-surface">
+          <span class="font-semibold">{{ entry.changedByEmail || 'bilinmeyen' }}</span>
+          {{ actionLabel(entry.action) }}
+          <span class="font-semibold">{{ entry.wordLabel }}</span>
+          <span *ngIf="entry.details" class="text-on-surface-variant"> — {{ entry.details }}</span>
+        </p>
+        <span class="font-mono text-xs text-on-surface-variant">{{ entry.changedAt | date:'d MMM yyyy HH:mm' }}</span>
+      </li>
+    </ul>
+  </div>
+</section>

@@ -58,7 +58,7 @@ export class AdminStatsService {
   async getStats(): Promise<AdminStats> {
     const [{ data: words, error: wordsError }, { data: profiles, error: profilesError }, { data: progress, error: progressError }] =
       await Promise.all([
-        this.supabaseService.client.from('words').select('id, level, example, audio_url'),
+        this.supabaseService.client.from('words').select('id, level, example, audio_url').eq('status', 'published'),
         this.supabaseService.client.from('profiles').select('id, email'),
         this.supabaseService.client.from('user_progress').select('user_id, learned, updated_at')
       ]);

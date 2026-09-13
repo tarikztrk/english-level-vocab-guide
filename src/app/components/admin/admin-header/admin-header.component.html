@@ -1,0 +1,22 @@
+<div class="overflow-hidden rounded-3xl border border-outline-variant bg-surface shadow-[0_16px_40px_rgba(21,28,39,0.06)]">
+  <!-- Koyu admin çubuğu: öğrenci arayüzünden görsel olarak ayrışan, yoğun admin modu -->
+  <div class="flex flex-wrap items-center justify-between gap-3 bg-admin-bar px-md py-3">
+    <a routerLink="/admin/dashboard" class="flex items-baseline gap-2 font-serif text-lg font-semibold text-white">
+      EnglishAcademy<span class="font-sans text-sm font-medium text-admin-bar-muted">admin</span>
+    </a>
+    <nav class="flex flex-wrap gap-1 text-sm" aria-label="Yönetim paneli menüsü">
+      <a routerLink="/admin/dashboard" routerLinkActive="bg-white/10 !text-white" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-3 py-1.5 font-semibold text-admin-bar-muted transition hover:text-white">Panel</a>
+      <a routerLink="/admin/vocabulary" routerLinkActive="bg-white/10 !text-white" class="rounded-full px-3 py-1.5 font-semibold text-admin-bar-muted transition hover:text-white">Kelimeler</a>
+      <a routerLink="/admin/analytics" routerLinkActive="bg-white/10 !text-white" class="rounded-full px-3 py-1.5 font-semibold text-admin-bar-muted transition hover:text-white">Analiz</a>
+      <a routerLink="/admin/changelog" routerLinkActive="bg-white/10 !text-white" class="rounded-full px-3 py-1.5 font-semibold text-admin-bar-muted transition hover:text-white">Günlük</a>
+    </nav>
+  </div>
+
+  <div class="flex flex-col gap-md p-md">
+    <div>
+      <p class="font-label-caps text-label-caps uppercase text-primary">Yönetim Paneli</p>
+      <h1 class="mt-xs font-serif font-display-lg-mobile text-display-lg-mobile text-on-surface md:font-display-lg md:text-display-lg">{{ title }}</h1>
+    </div>
+    <ng-content></ng-content>
+  </div>
+</div>

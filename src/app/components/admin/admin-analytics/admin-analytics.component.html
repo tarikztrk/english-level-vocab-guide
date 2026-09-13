@@ -1,29 +1,9 @@
 <section class="mx-auto flex w-full max-w-container-max flex-col gap-lg px-gutter py-lg">
-  <div class="flex flex-col gap-md rounded-3xl border border-outline-variant bg-surface p-md shadow-[0_16px_40px_rgba(21,28,39,0.06)]">
-    <div class="flex flex-col justify-between gap-md lg:flex-row lg:items-end">
-      <div>
-        <p class="font-label-caps text-label-caps uppercase text-primary">Yönetim Paneli</p>
-        <h1 class="mt-xs font-display-lg-mobile text-display-lg-mobile text-on-surface md:font-display-lg md:text-display-lg">
-          Kullanıcı Analizi
-        </h1>
-        <p class="mt-xs max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
-          Kelime ustalığı, tamamlanma oranı ve kullanıcı etkileşimi özetleri.
-        </p>
-      </div>
-
-      <nav class="flex flex-wrap gap-sm">
-        <a routerLink="/admin/dashboard" routerLinkActive="bg-primary !text-on-primary shadow-sm !border-transparent" class="rounded-full border border-outline-variant px-4 py-2 font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Panel
-        </a>
-        <a routerLink="/admin/vocabulary" routerLinkActive="bg-primary !text-on-primary shadow-sm !border-transparent" class="rounded-full border border-outline-variant px-4 py-2 font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Kelimeler
-        </a>
-        <a routerLink="/admin/analytics" routerLinkActive="bg-primary !text-on-primary shadow-sm !border-transparent" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full border border-outline-variant px-4 py-2 font-body-md text-body-md text-on-surface-variant transition hover:bg-surface-container">
-          Analiz
-        </a>
-      </nav>
-    </div>
-  </div>
+  <app-admin-header title="Kullanıcı Analizi">
+    <p class="max-w-2xl font-body-lg text-body-lg text-on-surface-variant">
+      Kelime ustalığı, tamamlanma oranı ve kullanıcı etkileşimi özetleri.
+    </p>
+  </app-admin-header>
 
   <div *ngIf="isLoading" class="rounded-3xl border border-outline-variant bg-surface p-lg text-center shadow-sm">
     <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>

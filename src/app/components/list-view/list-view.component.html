@@ -1,135 +1,272 @@
 <div class="min-h-screen bg-background text-on-surface">
-  <section class="mx-auto max-w-[1200px] px-gutter py-10">
-    <div class="rounded-[2rem] border border-outline-variant/20 bg-surface p-8 shadow-sm">
-      <div class="mb-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p class="text-sm font-semibold uppercase tracking-[0.24em] text-primary/90">Kelime Gezgini</p>
-          <h1 class="mt-3 text-4xl font-bold text-on-surface">{{ title }}</h1>
-          <p class="mt-3 max-w-2xl text-sm text-on-surface-variant">Kelimeleri inceleyin, kategoriye göre filtreleyin ve öğrendiklerinizi işaretleyin.</p>
-        </div>
-        <div class="flex flex-wrap gap-3">
-          <button routerLink="/flashcards" class="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-dark">
-            <span class="material-symbols-outlined">view_carousel</span>
-            Bilgi Kartları
-          </button>
-          <button type="button" (click)="exportList()" [disabled]="filteredWords.length === 0" class="inline-flex items-center gap-2 rounded-2xl border border-outline-variant/30 bg-surface px-4 py-3 text-sm font-semibold text-primary transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50">
-            <span class="material-symbols-outlined" aria-hidden="true">download</span>
-            Listeyi Dışa Aktar
-          </button>
+  <section class="mx-auto max-w-[1200px] px-gutter py-8 pb-[calc(3rem_+_env(safe-area-inset-bottom))]">
+
+    <div *ngIf="progressMessage" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-sm font-semibold text-primary shadow-xl shadow-surface-container-high/40">
+      <span class="material-symbols-outlined text-xl" aria-hidden="true">info</span>
+      <span class="flex-1">{{ progressMessage }}</span>
+      <button type="button" class="text-on-surface-variant transition hover:text-primary" aria-label="Mesajı kapat" (click)="dismissProgressMessage()">
+        <span class="material-symbols-outlined text-lg" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <!-- Sayfa başlığı: seviye + ilerleme + birincil eylemler -->
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div class="min-w-0">
+        <p class="text-xs font-bold uppercase tracking-[0.14em] text-on-surface-variant">{{ title }}</p>
+        <h1 class="mt-2 font-serif text-3xl font-semibold leading-tight sm:text-4xl">{{ activeLevelTitle }}</h1>
+        <div class="mt-4 max-w-sm" *ngIf="!isLoading">
+          <div class="flex items-center justify-between text-sm text-on-surface-variant">
+            <span><strong class="font-semibold text-on-surface">{{ scopeLearned }}</strong> / {{ scopeTotal }} kelime öğrenildi</span>
+            <span class="font-mono text-xs">%{{ scopeMastery }}</span>
+          </div>
+          <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-container-high" role="progressbar" [attr.aria-valuenow]="scopeMastery" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="activeLevelTitle + ' ilerlemesi'">
+            <div class="h-full rounded-full bg-primary transition-[width] duration-300" [style.width.%]="scopeMastery"></div>
+          </div>
         </div>
       </div>
 
-      <div class="grid gap-6 lg:grid-cols-[1fr_280px]">
-        <div class="space-y-6">
-          <div *ngIf="progressMessage" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-sm font-semibold text-primary shadow-xl shadow-surface-container-high/40">
-            <span class="material-symbols-outlined text-xl" aria-hidden="true">info</span>
-            <span class="flex-1">{{ progressMessage }}</span>
-            <button type="button" class="text-on-surface-variant transition hover:text-primary" aria-label="Mesajı kapat" (click)="dismissProgressMessage()">
-              <span class="material-symbols-outlined text-lg" aria-hidden="true">close</span>
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="inline-flex items-center gap-2 rounded-2xl border border-outline-variant/40 bg-surface px-3 py-2 text-sm">
+          <span class="text-on-surface-variant">Sırala:</span>
+          <select class="bg-transparent text-sm font-semibold text-on-surface focus:outline-none" [ngModel]="selectedSort" (ngModelChange)="setSort($event)" aria-label="Sıralama ölçütü">
+            <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </label>
+        <button routerLink="/flashcards" class="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">view_carousel</span>
+          Kartlarla çalış
+        </button>
+        <button type="button" (click)="exportList()" [disabled]="filteredWords.length === 0" class="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-outline-variant/40 bg-surface px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">download</span>
+          Dışa aktar
+        </button>
+      </div>
+    </div>
+
+    <!-- Arama + seviye şeridi: kaydırırken üstte kalır -->
+    <div class="sticky top-[var(--app-header-height,76px)] z-30 -mx-gutter mt-6 border-y border-outline-variant/20 bg-surface/95 px-gutter py-3 backdrop-blur">
+      <div class="flex items-center gap-2 rounded-2xl border border-outline-variant/40 bg-surface-container-low px-3 focus-within:border-primary">
+        <span class="material-symbols-outlined text-[20px] text-on-surface-variant" aria-hidden="true">search</span>
+        <input class="h-11 min-w-0 flex-1 bg-transparent text-base focus:outline-none" [(ngModel)]="search" (ngModelChange)="onSearchChange()" placeholder="Kelime veya Türkçe anlam ara…" aria-label="Kelime veya Türkçe anlam ara" type="search" />
+        <button *ngIf="search" type="button" (click)="clearFilter('search')" class="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant transition hover:text-on-surface" aria-label="Aramayı temizle">
+          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
+        </button>
+      </div>
+
+      <!-- Mobil seviye şeridi; geniş ekranda sol rayda -->
+      <div class="mt-3 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+        <button *ngFor="let level of levels" type="button" (click)="selectLevel(level)" [attr.aria-pressed]="selectedLevel === level"
+                [ngClass]="selectedLevel === level ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'"
+                class="h-9 flex-none rounded-full px-4 text-sm font-semibold transition">
+          {{ level }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobil ikincil filtreler -->
+    <div class="mt-4 flex flex-wrap items-center gap-2 lg:hidden">
+      <button *ngFor="let option of statusOptions" type="button" (click)="setStatus(option.value)" [attr.aria-pressed]="selectedStatus === option.value"
+              [ngClass]="selectedStatus === option.value ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/40 text-on-surface-variant'"
+              class="h-9 rounded-xl border px-3 text-sm font-semibold transition">
+        {{ option.label }}
+      </button>
+      <button type="button" (click)="toggleBookmarkedOnly()" [attr.aria-pressed]="showBookmarkedOnly"
+              [ngClass]="showBookmarkedOnly ? 'border-primary bg-primary/10 text-primary' : 'border-outline-variant/40 text-on-surface-variant'"
+              class="inline-flex h-9 items-center gap-1.5 rounded-xl border px-3 text-sm font-semibold transition">
+        <span class="material-symbols-outlined text-[18px]" [class.is-filled]="showBookmarkedOnly" aria-hidden="true">bookmark</span>
+        Kaydedilenler
+      </button>
+      <label class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-outline-variant/40 px-3 text-sm text-on-surface-variant">
+        <select class="bg-transparent text-sm font-semibold text-on-surface focus:outline-none" [ngModel]="selectedCategory" (ngModelChange)="selectCategory($event)" aria-label="Kategori">
+          <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- Aktif filtreler -->
+    <div *ngIf="hasActiveFilters" class="mt-4 flex flex-wrap items-center gap-2">
+      <span class="text-sm text-on-surface-variant">Aktif:</span>
+      <button *ngFor="let chip of activeFilters" type="button" (click)="clearFilter(chip.key)"
+              class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-primary/25 bg-primary/[0.07] px-2.5 text-sm font-medium text-primary transition hover:bg-primary/15"
+              [attr.aria-label]="chip.label + ' filtresini kaldır'">
+        {{ chip.label }}
+        <span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
+      </button>
+      <button type="button" (click)="clearAllFilters()" class="text-sm font-semibold text-primary underline-offset-2 hover:underline">Tümünü temizle</button>
+    </div>
+
+    <div class="mt-5 grid items-start gap-6 lg:grid-cols-[248px_minmax(0,1fr)]">
+
+      <!-- Sol ray: seviye, durum, kategori -->
+      <aside class="sticky top-[calc(var(--app-header-height,76px)_+_6rem)] hidden rounded-3xl border border-outline-variant/20 bg-surface p-5 shadow-sm lg:block">
+        <div>
+          <h2 class="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant">Seviye</h2>
+          <div class="flex flex-col gap-1">
+            <button *ngFor="let level of levels" type="button" (click)="selectLevel(level)" [attr.aria-pressed]="selectedLevel === level"
+                    [ngClass]="selectedLevel === level ? 'bg-primary/10 font-semibold text-primary' : 'text-on-surface-variant hover:bg-surface-container-low'"
+                    class="flex h-9 items-center justify-between rounded-lg px-2.5 text-sm transition">
+              <span>{{ level === 'Tümü' ? 'Tüm seviyeler' : level }}</span>
+              <span class="font-mono text-xs" [class.text-on-surface-variant]="selectedLevel !== level">{{ levelCounts[level] || 0 }}</span>
             </button>
-          </div>
-
-          <div class="rounded-3xl border border-outline-variant/20 bg-surface p-5 shadow-sm">
-            <div class="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
-              <div class="relative">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant" aria-hidden="true">search</span>
-                <input class="w-full rounded-2xl border border-outline-variant/50 bg-surface px-10 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/10" [(ngModel)]="search" (ngModelChange)="onSearchChange()" placeholder="Kelime ara..." aria-label="Kelime ara" type="text" />
-              </div>
-              <div class="flex flex-wrap justify-end gap-3">
-                <button *ngFor="let option of sortOptions" (click)="setSort(option.value)" [attr.aria-pressed]="selectedSort === option.value" [ngClass]="{ 'bg-primary text-white': selectedSort === option.value, 'bg-surface text-primary border border-outline-variant/50 hover:bg-surface-container': selectedSort !== option.value }" class="rounded-2xl px-4 py-3 text-sm font-semibold transition">
-                  {{ option.label }}
-                </button>
-                <button type="button" (click)="toggleBookmarkedOnly()" [attr.aria-pressed]="showBookmarkedOnly" [ngClass]="showBookmarkedOnly ? 'bg-secondary text-white' : 'bg-surface text-primary border border-outline-variant/50 hover:bg-surface-container'" class="inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition">
-                  <span class="material-symbols-outlined text-[18px]" aria-hidden="true">bookmark</span>
-                  Kaydedilenler
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div *ngIf="isLoading" class="rounded-3xl border border-outline-variant/20 bg-surface p-8 text-center shadow-sm">
-            <div class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
-            <p class="mt-4 text-sm font-semibold text-on-surface-variant">Kelimeler yükleniyor...</p>
-          </div>
-
-          <div *ngIf="!isLoading && loadError" class="rounded-3xl border border-error/30 bg-error-container p-5 text-sm font-semibold text-on-error-container">
-            {{ loadError }}
-          </div>
-
-          <div *ngIf="!isLoading && !loadError && filteredWords.length === 0" class="rounded-3xl border border-outline-variant/20 bg-surface p-8 text-center shadow-sm">
-            <span class="material-symbols-outlined text-4xl text-outline-variant">search_off</span>
-            <h3 class="mt-3 text-lg font-bold">Kelime bulunamadı</h3>
-            <p class="mt-2 text-sm text-on-surface-variant">Arama, kategori veya sıralama seçeneğini değiştirmeyi deneyin.</p>
-          </div>
-
-          <div *ngIf="!isLoading" class="grid gap-4">
-            <div *ngFor="let item of paginatedWords" class="rounded-[2rem] border border-outline-variant/20 bg-surface p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div class="space-y-3">
-                  <div class="flex flex-wrap items-center gap-3">
-                    <h2 class="text-xl font-bold">{{ item.word }}</h2>
-                    <span class="rounded-full bg-surface-container-low px-3 py-1 text-xs font-semibold text-on-surface-variant">{{ item.category }}</span>
-                  </div>
-                  <p class="text-sm text-on-surface-variant">{{ item.phonetic }}</p>
-                  <p class="text-sm leading-6">{{ item.meaning }}</p>
-                </div>
-                <div class="flex flex-col gap-3 sm:items-end">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <button (click)="listen(item)" [attr.aria-label]="item.word + ' kelimesini dinle'" title="Dinle" class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 p-2 text-primary transition hover:bg-primary/10">
-                      <span class="material-symbols-outlined" aria-hidden="true">volume_up</span>
-                    </button>
-                    <button (click)="toggleLearned(item)" [attr.aria-pressed]="item.learned" class="rounded-full border px-4 py-2 text-sm font-semibold transition" [ngClass]="item.learned ? 'border-secondary bg-secondary/10 text-secondary' : 'border-outline-variant/30 text-primary hover:bg-primary/10'">
-                      {{ item.learned ? 'Öğrenildi' : 'Öğrenildi İşaretle' }}
-                    </button>
-                    <button (click)="toggleBookmark(item)" [attr.aria-pressed]="item.bookmarked" class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition" [ngClass]="item.bookmarked ? 'border-secondary bg-secondary/10 text-secondary' : 'border-outline-variant/30 text-primary hover:bg-primary/10'">
-                      <span class="material-symbols-outlined" aria-hidden="true">bookmark</span>
-                      {{ item.bookmarked ? 'Kaydedildi' : 'Kaydet' }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div *ngIf="!isLoading && filteredWords.length > 0" class="flex flex-col justify-between gap-4 rounded-3xl border border-outline-variant/20 bg-surface p-5 shadow-sm sm:flex-row sm:items-center">
-            <span class="text-sm font-semibold text-on-surface-variant">
-              {{ filteredWords.length }} kelimeden {{ firstItemIndex }}-{{ lastItemIndex }} arası gösteriliyor
-            </span>
-            <div class="flex flex-wrap items-center gap-2">
-              <button type="button" (click)="prevPage()" [disabled]="currentPage === 1" class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 p-2 text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50">
-                <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-              </button>
-              <button type="button" *ngFor="let page of getVisiblePages()" (click)="setPage(page)" [attr.aria-current]="page === currentPage ? 'page' : null" [ngClass]="page === currentPage ? 'bg-primary text-white' : 'border border-outline-variant/50 text-primary hover:bg-surface-container'" class="rounded-full px-4 py-2 text-sm font-semibold transition">
-                {{ page }}
-              </button>
-              <button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages" class="inline-flex items-center justify-center rounded-full border border-outline-variant/30 p-2 text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-50">
-                <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-              </button>
-            </div>
           </div>
         </div>
 
-        <aside class="rounded-3xl border border-outline-variant/20 bg-surface p-5 shadow-sm">
-          <h3 class="mb-4 text-lg font-bold">Çalışma Özeti</h3>
-          <div class="space-y-4">
-            <div class="rounded-2xl bg-surface-container-low p-4">
-              <p class="text-sm text-on-surface-variant">Ustalık</p>
-              <p class="mt-2 text-2xl font-bold text-primary">{{ currentMastery }}%</p>
+        <div class="mt-6">
+          <h2 class="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant">Durum</h2>
+          <div class="flex flex-col gap-1">
+            <button *ngFor="let option of statusOptions" type="button" (click)="setStatus(option.value)" [attr.aria-pressed]="selectedStatus === option.value"
+                    [ngClass]="selectedStatus === option.value ? 'bg-primary/10 font-semibold text-primary' : 'text-on-surface-variant hover:bg-surface-container-low'"
+                    class="flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm transition">
+              <span class="material-symbols-outlined text-[18px]" aria-hidden="true">{{ selectedStatus === option.value ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+              {{ option.label }}
+            </button>
+            <button type="button" (click)="toggleBookmarkedOnly()" [attr.aria-pressed]="showBookmarkedOnly"
+                    [ngClass]="showBookmarkedOnly ? 'bg-primary/10 font-semibold text-primary' : 'text-on-surface-variant hover:bg-surface-container-low'"
+                    class="flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm transition">
+              <span class="material-symbols-outlined text-[18px]" [class.is-filled]="showBookmarkedOnly" aria-hidden="true">bookmark</span>
+              Kaydedilenler
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h2 class="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant">Kategori</h2>
+          <div class="flex flex-wrap gap-1.5">
+            <button *ngFor="let category of categories" type="button" (click)="selectCategory(category)" [attr.aria-pressed]="selectedCategory === category"
+                    [ngClass]="selectedCategory === category ? 'border-primary/30 bg-primary/10 font-semibold text-primary' : 'border-outline-variant/40 text-on-surface-variant hover:bg-surface-container-low'"
+                    class="h-8 rounded-lg border px-2.5 text-[13px] transition">
+              {{ category }}
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="min-w-0">
+
+        <!-- Sonuç sayısı -->
+        <div *ngIf="!isLoading" class="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm text-on-surface-variant" aria-live="polite">
+            <ng-container *ngIf="search.trim()">“{{ search.trim() }}” için </ng-container>
+            <strong class="font-semibold text-on-surface">{{ filteredWords.length }}</strong> sonuç
+          </p>
+          <p *ngIf="filteredWords.length > 0" class="text-sm text-on-surface-variant">
+            {{ firstItemIndex }}-{{ lastItemIndex }} arası gösteriliyor
+          </p>
+        </div>
+
+        <!-- Yükleniyor: satır iskeleti -->
+        <div *ngIf="isLoading" class="grid gap-3 sm:grid-cols-2" aria-live="polite" aria-busy="true">
+          <span class="sr-only">Kelimeler yükleniyor…</span>
+          <div *ngFor="let placeholder of [1, 2, 3, 4]" class="animate-pulse rounded-2xl border border-outline-variant/20 bg-surface p-5">
+            <div class="h-5 w-2/5 rounded-md bg-surface-container-high"></div>
+            <div class="mt-2.5 h-3 w-1/4 rounded-md bg-surface-container"></div>
+            <div class="mt-3 h-3.5 w-3/5 rounded-md bg-surface-container"></div>
+            <div class="mt-4 h-6 w-24 rounded-md bg-surface-container"></div>
+          </div>
+        </div>
+
+        <!-- Hata / çevrimdışı -->
+        <div *ngIf="!isLoading && loadError" class="mb-4 flex flex-col items-start gap-2 rounded-2xl border border-error/30 bg-error-container p-5">
+          <span class="material-symbols-outlined text-error" aria-hidden="true">cloud_off</span>
+          <h3 class="text-base font-bold text-on-error-container">Kelime listesi yüklenemedi</h3>
+          <p class="text-sm text-on-error-container">{{ loadError }} Bağlantınızı kontrol edip tekrar deneyebilirsiniz.</p>
+          <button type="button" (click)="retryLoad()" class="mt-1 inline-flex min-h-11 items-center gap-2 rounded-xl bg-on-surface px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90">
+            <span class="material-symbols-outlined text-[20px]" aria-hidden="true">refresh</span>
+            Tekrar dene
+          </button>
+        </div>
+
+        <!-- Sonuç yok -->
+        <div *ngIf="!isLoading && filteredWords.length === 0" class="flex flex-col items-start gap-2.5 rounded-2xl border border-outline-variant/20 bg-surface p-6 shadow-sm">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant">
+            <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
+          </div>
+          <h3 class="text-base font-bold">
+            <ng-container *ngIf="search.trim(); else noResultPlain">“{{ search.trim() }}” bulunamadı</ng-container>
+            <ng-template #noResultPlain>Bu filtrelerle kelime yok</ng-template>
+          </h3>
+          <p class="text-sm text-on-surface-variant">
+            <ng-container *ngIf="hasActiveFilters">Filtreleri kaldırmak sonucu genişletebilir.</ng-container>
+            <ng-container *ngIf="!hasActiveFilters">Henüz görüntülenecek kelime bulunmuyor.</ng-container>
+          </p>
+          <div class="mt-1 flex flex-wrap gap-2" *ngIf="hasActiveFilters">
+            <button type="button" (click)="clearAllFilters()" class="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark">Filtreleri temizle</button>
+            <button *ngIf="selectedLevel !== 'Tümü'" type="button" (click)="clearFilter('level')" class="inline-flex min-h-11 items-center rounded-xl border border-outline-variant/40 bg-surface px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container">Tüm seviyelerde ara</button>
+          </div>
+        </div>
+
+        <!-- Liste -->
+        <div *ngIf="!isLoading && filteredWords.length > 0" class="grid gap-3 sm:grid-cols-2">
+          <article *ngFor="let item of paginatedWords" class="flex items-start gap-3 rounded-2xl border border-outline-variant/20 bg-surface p-4 shadow-sm transition hover:shadow-md">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <h2 class="font-serif text-[22px] font-semibold leading-tight">{{ item.word }}</h2>
+                <span class="inline-flex h-5 items-center rounded-[5px] px-1.5 text-[11px] font-semibold tracking-wide" [ngStyle]="levelBadgeStyle(item.level)">{{ item.level }}</span>
+                <span class="text-xs italic text-on-surface-variant">{{ item.category }}</span>
+              </div>
+              <p *ngIf="item.phonetic" class="mt-1 font-mono text-xs text-on-surface-variant">{{ item.phonetic }}</p>
+              <p class="mt-1.5 text-[15px] leading-snug text-on-surface-variant">{{ item.meaning }}</p>
+              <p *ngIf="item.example" class="mt-2 line-clamp-2 text-sm italic leading-snug text-on-surface-variant">“{{ item.example }}”</p>
+
+              <button type="button" (click)="toggleLearned(item)" [attr.aria-pressed]="item.learned"
+                      [ngClass]="item.learned ? 'bg-secondary/15 text-status-live' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'"
+                      class="mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition">
+                <span class="material-symbols-outlined text-[16px]" [class.is-filled]="item.learned" aria-hidden="true">{{ item.learned ? 'check_circle' : 'radio_button_unchecked' }}</span>
+                {{ item.learned ? 'Öğrenildi' : 'Yeni' }}
+              </button>
             </div>
-            <div class="rounded-2xl bg-surface-container-low p-4">
-              <p class="text-sm text-on-surface-variant">Öğrenilen Kelime</p>
-              <p class="mt-2 text-2xl font-bold text-secondary">{{ currentLearned }}</p>
+
+            <div class="flex flex-none flex-col gap-2">
+              <button type="button" (click)="listen(item)" [attr.aria-label]="item.word + ' kelimesini dinle'" title="Dinle"
+                      class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition hover:bg-primary/20">
+                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">volume_up</span>
+              </button>
+              <button type="button" (click)="toggleBookmark(item)" [attr.aria-pressed]="item.bookmarked"
+                      [attr.aria-label]="item.bookmarked ? item.word + ' kaydını kaldır' : item.word + ' kelimesini kaydet'"
+                      [ngClass]="item.bookmarked ? 'border-tertiary/40 text-tertiary' : 'border-outline-variant/30 text-on-surface-variant hover:text-on-surface'"
+                      class="flex h-11 w-11 items-center justify-center rounded-xl border bg-surface transition">
+                <span class="material-symbols-outlined text-[20px]" [class.is-filled]="item.bookmarked" aria-hidden="true">bookmark</span>
+              </button>
             </div>
-            <div class="rounded-2xl bg-surface-container-low p-4">
-              <p class="text-sm text-on-surface-variant">Toplam Kelime</p>
-              <p class="mt-2 text-2xl font-bold text-tertiary">{{ currentTotal }}</p>
+          </article>
+        </div>
+
+        <!-- Sayfalama -->
+        <div *ngIf="!isLoading && filteredWords.length > 0" class="mt-5 flex flex-wrap items-center justify-center gap-2">
+          <button type="button" (click)="prevPage()" [disabled]="currentPage === 1" aria-label="Önceki sayfa" class="flex h-11 w-11 items-center justify-center rounded-xl border border-outline-variant/30 text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+          </button>
+          <button type="button" *ngFor="let page of getVisiblePages()" (click)="setPage(page)" [attr.aria-current]="page === currentPage ? 'page' : null"
+                  [ngClass]="page === currentPage ? 'bg-primary text-white' : 'border border-outline-variant/40 text-primary hover:bg-surface-container'"
+                  class="h-11 min-w-11 rounded-xl px-3 text-sm font-semibold transition">
+            {{ page }}
+          </button>
+          <button type="button" (click)="nextPage()" [disabled]="currentPage === totalPages" aria-label="Sonraki sayfa" class="flex h-11 w-11 items-center justify-center rounded-xl border border-outline-variant/30 text-primary transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+        </div>
+
+        <!-- Çalışma özeti -->
+        <div *ngIf="!isLoading" class="mt-6 rounded-2xl border border-outline-variant/20 bg-surface p-5 shadow-sm">
+          <h2 class="text-sm font-bold">Çalışma özeti</h2>
+          <div class="mt-3 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-xl bg-surface-container-low p-3">
+              <p class="text-xs text-on-surface-variant">Bu sonuçlarda ustalık</p>
+              <p class="mt-1 text-2xl font-bold text-primary">%{{ currentMastery }}</p>
+            </div>
+            <div class="rounded-xl bg-surface-container-low p-3">
+              <p class="text-xs text-on-surface-variant">Öğrenilen</p>
+              <p class="mt-1 text-2xl font-bold text-secondary">{{ currentLearned }}</p>
+            </div>
+            <div class="rounded-xl bg-surface-container-low p-3">
+              <p class="text-xs text-on-surface-variant">Toplam</p>
+              <p class="mt-1 text-2xl font-bold text-tertiary">{{ currentTotal }}</p>
             </div>
           </div>
-          <div class="mt-6 space-y-3">
-            <button routerLink="/flashcards" class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-dark">Bilgi Kartlarını Aç</button>
-            <button type="button" (click)="reviewDifficultWords()" class="w-full rounded-2xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm font-semibold text-on-surface transition hover:bg-surface-container">Zorlandıklarımı tekrar et</button>
-          </div>
-        </aside>
+          <button type="button" (click)="reviewDifficultWords()" class="mt-4 inline-flex min-h-11 items-center rounded-xl border border-outline-variant/30 bg-surface px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container">
+            Zorlandıklarımı tekrar et
+          </button>
+        </div>
       </div>
     </div>
   </section>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationRequiredError, VocabularyDataService, VocabularyWord } from '../../services/vocabulary-data.service';
 import { PronunciationService } from '../../services/pronunciation.service';
+import { levelBadgeStyle } from '../../shared/level-badge';
 
 interface LevelTab {
   label: string;
@@ -14,6 +15,8 @@ interface LevelTab {
 })
 export class DashboardComponent implements OnInit {
   title = 'EnglishAcademy';
+
+  readonly levelBadgeStyle = levelBadgeStyle;
 
   constructor(
     private vocabularyDataService: VocabularyDataService,
@@ -59,7 +62,7 @@ export class DashboardComponent implements OnInit {
     { id: 3, word: 'Negotiate', phonetic: '/nɪˈɡoʊ.ʃi.eɪt/', meaning: 'Görüşmek, pazarlık yapmak', level: 'B2', category: 'Business', example: '', audioUrl: '', learned: false, bookmarked: false },
     { id: 4, word: 'Everyday', phonetic: '/ˈɛv.ri.deɪ/', meaning: 'Günlük', level: 'A2', category: 'Daily', example: '', audioUrl: '', learned: false, bookmarked: false },
     { id: 5, word: 'Evaluate', phonetic: '/ɪˈvæl.ju.eɪt/', meaning: 'Değerlendirmek', level: 'B1', category: 'Academic', example: '', audioUrl: '', learned: false, bookmarked: false }
-  ];
+  ].map((word) => ({ ...word, wordType: '', status: 'published' as const, updatedAt: '', updatedByEmail: '' }));
 
   ngOnInit() {
     void this.loadVocabulary();
