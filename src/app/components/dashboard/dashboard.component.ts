@@ -1,12 +1,19 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthenticationRequiredError, VocabularyDataService, VocabularyWord } from '../../services/vocabulary-data.service';
 import { PronunciationService } from '../../services/pronunciation.service';
 import { levelBadgeStyle } from '../../shared/level-badge';
+import { CEFR_LEVELS, LEVEL_NAMES, levelTitle } from '../../shared/levels';
 
-interface LevelTab {
-  label: string;
-  active: boolean;
+interface LevelStat {
+  code: string;
+  name: string;
+  total: number;
+  learned: number;
+  percent: number;
 }
+
+const RECENT_WORD_COUNT = 3;
 
 @Component({
   selector: 'app-dashboard',
@@ -20,41 +27,21 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private vocabularyDataService: VocabularyDataService,
-    private pronunciationService: PronunciationService
+    private pronunciationService: PronunciationService,
+    private router: Router
   ) {}
 
-  tabs: LevelTab[] = [
-    { label: 'Tüm Seviyeler', active: true },
-    { label: 'A1', active: false },
-    { label: 'A2', active: false },
-    { label: 'B1', active: false },
-    { label: 'B2', active: false },
-    { label: 'C1', active: false },
-    { label: 'C2', active: false }
-  ];
-
-  selectedCategory = 'Tümü';
-  search = '';
-  progressMessage = '';
   isLoading = true;
   loadError = '';
+  progressMessage = '';
   private progressMessageTimeout?: ReturnType<typeof setTimeout>;
 
   vocabularyItems: VocabularyWord[] = [];
-  filteredVocabulary: VocabularyWord[] = [];
-  categories: string[] = ['Tümü'];
-
-  currentTotal = 0;
-  currentLearned = 0;
-  currentMastery = 0;
-  activeLevelLabel = '';
-
-  currentPage = 1;
-  pageSize = 10;
-
+  levelStats: LevelStat[] = [];
+  /** The level the hero speaks for: where the user left off, or the first unfinished one. */
+  currentLevel = 'A1';
+  recentWords: VocabularyWord[] = [];
   wordOfTheDay: VocabularyWord | null = null;
-  selectedIds = new Set<number>();
-  isBulkSaving = false;
 
   private readonly fallbackVocabulary: VocabularyWord[] = [
     { id: 1, word: 'Inherent', phonetic: '/ɪnˈhɪər.ənt/', meaning: 'Doğasında olan, kalıtımsal', level: 'B1', category: 'Academic', example: '', audioUrl: '', learned: false, bookmarked: false },
@@ -68,86 +55,48 @@ export class DashboardComponent implements OnInit {
     void this.loadVocabulary();
   }
 
-  onFilterChange() {
-    const activeTab = this.tabs.find(t => t.active);
-    const activeTabLabel = activeTab?.label;
+  // ---------- hero ----------
 
-    this.activeLevelLabel = !activeTab || activeTabLabel === 'Tüm Seviyeler' ? '' : (activeTabLabel + ' ');
+  get currentLevelTitle(): string {
+    return levelTitle(this.currentLevel);
+  }
 
-    this.filteredVocabulary = this.vocabularyItems.filter((item) => {
-      const matchesLevel = !activeTabLabel || activeTabLabel === 'Tüm Seviyeler' || item.level === activeTabLabel;
-      const matchesCategory = this.selectedCategory === 'Tümü' || item.category === this.selectedCategory;
-      const term = this.search.trim().toLowerCase();
-      const matchesSearch = term === '' || item.word.toLowerCase().includes(term) || item.meaning.toLowerCase().includes(term);
-      return matchesLevel && matchesCategory && matchesSearch;
+  get currentLevelStat(): LevelStat {
+    return this.levelStats.find((stat) => stat.code === this.currentLevel)
+      ?? { code: this.currentLevel, name: LEVEL_NAMES[this.currentLevel] ?? '', total: 0, learned: 0, percent: 0 };
+  }
+
+  get remainingInCurrentLevel(): number {
+    const stat = this.currentLevelStat;
+    return Math.max(stat.total - stat.learned, 0);
+  }
+
+  /** Dash offset for the hero ring: circumference 2πr with r = 74. */
+  get ringDashOffset(): number {
+    const circumference = 2 * Math.PI * 74;
+    return circumference * (1 - this.currentLevelStat.percent / 100);
+  }
+
+  get ringCircumference(): number {
+    return 2 * Math.PI * 74;
+  }
+
+  selectLevel(code: string) {
+    this.currentLevel = code;
+  }
+
+  /** Primary action: study exactly what is left in this level. */
+  continueStudying() {
+    void this.router.navigate(['/flashcards'], {
+      queryParams: { level: this.currentLevel, status: this.remainingInCurrentLevel > 0 ? 'new' : null }
     });
-
-    this.currentTotal = this.filteredVocabulary.length;
-    this.currentLearned = this.filteredVocabulary.filter(item => item.learned).length;
-    this.currentMastery = this.currentTotal > 0 ? Math.round((this.currentLearned / this.currentTotal) * 100) : 0;
-    this.currentPage = Math.min(this.currentPage, this.totalPages);
-
-    // Drop selections that the current filter no longer shows.
-    const visibleIds = new Set(this.filteredVocabulary.map((item) => item.id));
-    this.selectedIds = new Set(Array.from(this.selectedIds).filter((id) => visibleIds.has(id)));
   }
 
-  get paginatedVocabulary(): VocabularyWord[] {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    return this.filteredVocabulary.slice(startIndex, startIndex + this.pageSize);
+  openCurrentLevelList() {
+    void this.router.navigate(['/list'], { queryParams: { level: this.currentLevel } });
   }
 
-  get totalPages(): number {
-    return Math.ceil(this.filteredVocabulary.length / this.pageSize) || 1;
-  }
-
-  get firstItemIndex(): number {
-    return this.filteredVocabulary.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
-  }
-
-  get lastItemIndex(): number {
-    return Math.min(this.currentPage * this.pageSize, this.filteredVocabulary.length);
-  }
-
-  prevPage() {
-    if (this.currentPage > 1) this.currentPage--;
-  }
-
-  nextPage() {
-    if (this.currentPage < this.totalPages) this.currentPage++;
-  }
-
-  setPage(page: number) {
-    this.currentPage = page;
-  }
-
-  /** Up to 5 page numbers centered on the current page. */
-  getVisiblePages(): number[] {
-    const pages: number[] = [];
-    const start = Math.max(1, this.currentPage - 2);
-    const end = Math.min(this.totalPages, this.currentPage + 2);
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
-  }
-
-  selectTab(label: string) {
-    this.tabs = this.tabs.map((tab) => ({ ...tab, active: tab.label === label }));
-    this.currentPage = 1;
-    this.onFilterChange();
-  }
-
-  selectCategory(category: string) {
-    this.selectedCategory = category;
-    this.currentPage = 1;
-    this.onFilterChange();
-  }
-
-  onSearchChange() {
-    this.currentPage = 1;
-    this.onFilterChange();
-  }
+  // ---------- word actions ----------
 
   listen(item: VocabularyWord) {
     this.pronunciationService.play(item);
@@ -155,12 +104,12 @@ export class DashboardComponent implements OnInit {
 
   toggleLearned(item: VocabularyWord) {
     item.learned = !item.learned;
-    this.onFilterChange();
+    this.recomputeStats();
 
     if (item.id) {
       void this.vocabularyDataService.saveProgress(item.id, { learned: item.learned }).catch((error) => {
         item.learned = !item.learned;
-        this.onFilterChange();
+        this.recomputeStats();
         this.showProgressMessage(error instanceof AuthenticationRequiredError
           ? error.message
           : 'İlerleme kaydedilemedi. Lütfen tekrar deneyin.');
@@ -183,72 +132,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  isSelected(item: VocabularyWord) {
-    return this.selectedIds.has(item.id);
-  }
-
-  toggleSelection(item: VocabularyWord) {
-    if (this.selectedIds.has(item.id)) {
-      this.selectedIds.delete(item.id);
-    } else {
-      this.selectedIds.add(item.id);
-    }
-  }
-
-  get allVisibleSelected(): boolean {
-    return this.filteredVocabulary.length > 0 && this.selectedIds.size === this.filteredVocabulary.length;
-  }
-
-  toggleSelectAll() {
-    if (this.allVisibleSelected) {
-      this.selectedIds.clear();
-      return;
-    }
-    this.selectedIds = new Set(this.filteredVocabulary.map((item) => item.id));
-  }
-
-  /** Marks every selected word as learned, keeping the UI honest if a save fails. */
-  async markSelectedAsLearned() {
-    const targets = this.filteredVocabulary.filter((item) => this.selectedIds.has(item.id) && !item.learned);
-
-    if (targets.length === 0) {
-      return;
-    }
-
-    this.isBulkSaving = true;
-
-    for (const item of targets) {
-      item.learned = true;
-    }
-    this.onFilterChange();
-
-    const results = await Promise.allSettled(
-      targets.map((item) => this.vocabularyDataService.saveProgress(item.id, { learned: true }))
-    );
-
-    const failures = results.filter((result) => result.status === 'rejected') as PromiseRejectedResult[];
-
-    if (failures.length > 0) {
-      for (let i = 0; i < results.length; i++) {
-        if (results[i].status === 'rejected') {
-          targets[i].learned = false;
-        }
-      }
-      this.onFilterChange();
-
-      const firstReason = failures[0].reason;
-      this.showProgressMessage(firstReason instanceof AuthenticationRequiredError
-        ? firstReason.message
-        : `${targets.length} kelimeden ${failures.length} tanesi kaydedilemedi. Lütfen tekrar deneyin.`);
-      console.error('Could not save bulk progress', firstReason);
-    } else {
-      this.selectedIds.clear();
-      this.showProgressMessage(`${targets.length} kelime öğrenildi olarak işaretlendi.`);
-    }
-
-    this.isBulkSaving = false;
-  }
-
   dismissProgressMessage() {
     this.progressMessage = '';
 
@@ -257,24 +140,67 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  // ---------- loading ----------
+
   private async loadVocabulary() {
     this.isLoading = true;
     this.loadError = '';
 
     try {
-      const data = await this.vocabularyDataService.getWords();
-      this.vocabularyItems = data;
+      this.vocabularyItems = await this.vocabularyDataService.getWords();
     } catch (error) {
       console.error('Could not load vocabulary from Supabase. Falling back to sample data.', error);
       this.loadError = 'Kelimeler yüklenemedi. Örnek veriler gösteriliyor.';
       this.vocabularyItems = this.fallbackVocabulary;
-    } finally {
-      this.isLoading = false;
-      const cats = new Set(this.vocabularyItems.map(item => item.category));
-      this.categories = ['Tümü', ...Array.from(cats)].filter(c => c);
-      this.wordOfTheDay = this.pickWordOfTheDay();
-      this.onFilterChange();
     }
+
+    this.recomputeStats();
+    this.wordOfTheDay = this.pickWordOfTheDay();
+    await this.loadRecentWords();
+    this.isLoading = false;
+  }
+
+  /**
+   * "Where you left off" is the level of the most recently touched word; with no
+   * progress yet it falls back to the first level that still has words to learn.
+   */
+  private async loadRecentWords() {
+    let recentIds: number[] = [];
+
+    try {
+      recentIds = await this.vocabularyDataService.getRecentlyStudiedWordIds(12);
+    } catch (error) {
+      // The home screen still works without history; the hero just falls back.
+      console.error('Could not load recent progress', error);
+    }
+
+    const byId = new Map(this.vocabularyItems.map((item) => [item.id, item]));
+    this.recentWords = recentIds
+      .map((id) => byId.get(id))
+      .filter((item): item is VocabularyWord => !!item)
+      .slice(0, RECENT_WORD_COUNT);
+
+    this.currentLevel = this.recentWords[0]?.level ?? this.firstUnfinishedLevel();
+  }
+
+  private firstUnfinishedLevel(): string {
+    const unfinished = this.levelStats.find((stat) => stat.total > 0 && stat.learned < stat.total);
+    const anyWithWords = this.levelStats.find((stat) => stat.total > 0);
+    return unfinished?.code ?? anyWithWords?.code ?? CEFR_LEVELS[0];
+  }
+
+  private recomputeStats() {
+    this.levelStats = CEFR_LEVELS.map((code) => {
+      const words = this.vocabularyItems.filter((item) => item.level === code);
+      const learned = words.filter((item) => item.learned).length;
+      return {
+        code,
+        name: LEVEL_NAMES[code],
+        total: words.length,
+        learned,
+        percent: words.length > 0 ? Math.round((learned / words.length) * 100) : 0
+      };
+    });
   }
 
   /**

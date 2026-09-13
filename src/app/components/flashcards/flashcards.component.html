@@ -1,187 +1,142 @@
 <div class="min-h-screen bg-background text-on-surface">
-  <section class="mx-auto max-w-[960px] px-gutter py-10">
-    <div
-      class="rounded-[2rem] border border-outline-variant/20 bg-white p-8 shadow-sm"
-    >
-      <div
-        class="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-      >
-        <div>
-          <p
-            class="text-sm font-semibold uppercase tracking-[0.18em] text-primary/90"
-          >
-            {{ title }}
-          </p>
-          <h1 class="mt-3 font-serif text-3xl font-semibold text-on-surface">
-            Bilgi Kartı Çalışması
-          </h1>
-          <p class="mt-2 max-w-2xl text-sm text-on-surface-variant">
-            Kartları çevirerek kelimeleri tekrar edin, ilerlemenizi takip edin ve
-            kategoriye göre çalışın.
-          </p>
-        </div>
-        <div *ngIf="currentCard" class="flex flex-wrap gap-3">
-          <span
-            class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant"
-            >Kart {{ progressLabel }}</span
-          >
-          <span
-            class="rounded-full bg-surface-container-low px-4 py-2 text-sm font-semibold text-on-surface-variant"
-            >Kategori: {{ currentCard.category }}</span
-          >
-          <span
-            *ngIf="currentCard.learned"
-            class="flex items-center gap-1 rounded-full bg-secondary/10 px-4 py-2 text-sm font-semibold text-secondary"
-          >
-            <span class="material-symbols-outlined text-[18px]">check_circle</span>
-            Öğrenildi
-          </span>
+  <section class="mx-auto max-w-[820px] px-gutter py-8 pb-[calc(3rem_+_env(safe-area-inset-bottom))]">
+
+    <!-- Deste başlığı: hangi kelimeler çalışılıyor + ilerleme -->
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="min-w-0">
+        <p class="text-xs font-bold uppercase tracking-[0.14em] text-on-surface-variant">{{ title }}</p>
+        <h1 class="mt-2 font-serif text-3xl font-semibold leading-tight">{{ deckLabel }}</h1>
+        <p class="mt-1 text-sm text-on-surface-variant">
+          Çevirmek için karta dokun ya da <span class="font-mono text-xs">boşluk</span>,
+          gezinmek için <span class="font-mono text-xs">← →</span>.
+        </p>
+      </div>
+      <a *ngIf="isFilteredDeck" routerLink="/flashcards" class="inline-flex min-h-11 items-center gap-2 self-start rounded-2xl border border-outline-variant/40 bg-surface px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-surface-container">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">filter_alt_off</span>
+        Tüm kelimeler
+      </a>
+    </div>
+
+    <div *ngIf="!isLoading && cards.length > 0" class="mt-5 max-w-sm">
+      <div class="flex items-center justify-between text-sm text-on-surface-variant">
+        <span><strong class="font-semibold text-on-surface">{{ learnedCount }}</strong> / {{ cards.length }} kelime öğrenildi</span>
+        <span class="font-mono text-xs">%{{ learnedPercent }}</span>
+      </div>
+      <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-container-high" role="progressbar" [attr.aria-valuenow]="learnedPercent" aria-valuemin="0" aria-valuemax="100" aria-label="Deste ilerlemesi">
+        <div class="h-full rounded-full bg-primary transition-[width] duration-300" [style.width.%]="learnedPercent"></div>
+      </div>
+    </div>
+
+    <!-- Bildirim -->
+    <div *ngIf="progressMessage" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-sm font-semibold text-primary shadow-xl shadow-surface-container-high/40">
+      <span class="material-symbols-outlined text-xl" aria-hidden="true">info</span>
+      <span class="flex-1">{{ progressMessage }}</span>
+      <button type="button" class="text-on-surface-variant transition hover:text-primary" aria-label="Mesajı kapat" (click)="dismissProgressMessage()">
+        <span class="material-symbols-outlined text-lg" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <!-- Yükleniyor: kart iskeleti -->
+    <div *ngIf="isLoading" class="mt-6" aria-live="polite" aria-busy="true">
+      <span class="sr-only">Kartlar yükleniyor…</span>
+      <div class="h-72 animate-pulse rounded-[2rem] bg-surface-container-low"></div>
+    </div>
+
+    <!-- Hata -->
+    <div *ngIf="!isLoading && loadError" class="mt-6 rounded-2xl border border-error/30 bg-error-container p-5 text-sm font-semibold text-on-error-container">
+      {{ loadError }}
+    </div>
+
+    <!-- Boş deste -->
+    <div *ngIf="!isLoading && cards.length === 0" class="mt-6 flex flex-col items-start gap-2.5 rounded-2xl border border-outline-variant/20 bg-surface p-6 shadow-sm">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-container-low text-on-surface-variant">
+        <span class="material-symbols-outlined" aria-hidden="true">style</span>
+      </div>
+      <h3 class="text-base font-bold">Bu destede kart yok</h3>
+      <p class="text-sm text-on-surface-variant">
+        <ng-container *ngIf="isFilteredDeck">Seçtiğin filtreyle eşleşen kelime bulunmuyor.</ng-container>
+        <ng-container *ngIf="!isFilteredDeck">Henüz çalışılacak bir kelime bulunmuyor.</ng-container>
+      </p>
+      <div class="mt-1 flex flex-wrap gap-2">
+        <a *ngIf="isFilteredDeck" routerLink="/flashcards" class="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-dark">Tüm kelimelerle çalış</a>
+        <a routerLink="/list" class="inline-flex min-h-11 items-center rounded-xl border border-outline-variant/40 bg-surface px-4 py-2 text-sm font-semibold text-on-surface transition hover:bg-surface-container">Kelime listesine dön</a>
+      </div>
+    </div>
+
+    <!-- Kart -->
+    <ng-container *ngIf="!isLoading && currentCard">
+      <div class="perspective mt-6">
+        <div (click)="flipCard()" class="flip-card-inner relative h-80 cursor-pointer rounded-[2rem] transition-transform duration-500 ease-in-out sm:h-72"
+             [ngClass]="{ 'rotate-y-180': isFlipped }">
+
+          <!-- Ön yüz: kelime -->
+          <div class="backface-hidden absolute inset-0 flex flex-col items-center justify-center rounded-[2rem] border border-outline-variant/20 bg-surface p-8 text-center shadow-lg">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex h-5 items-center rounded-[5px] px-1.5 text-[11px] font-semibold tracking-wide" [ngStyle]="levelBadgeStyle(currentCard.level)">{{ currentCard.level }}</span>
+              <span class="text-xs italic text-on-surface-variant">{{ currentCard.category }}</span>
+            </div>
+
+            <h2 class="mt-5 font-serif text-4xl font-semibold text-on-surface">{{ currentCard.front }}</h2>
+            <p *ngIf="currentCard.pronunciation" class="mt-2 font-mono text-sm text-on-surface-variant">{{ currentCard.pronunciation }}</p>
+
+            <button type="button" (click)="$event.stopPropagation(); listenToPronunciation()"
+                    [attr.aria-label]="currentCard.front + ' kelimesini dinle'"
+                    class="mt-5 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition hover:bg-primary/20">
+              <span class="material-symbols-outlined text-[22px]" aria-hidden="true">volume_up</span>
+            </button>
+
+            <p class="mt-5 text-xs text-on-surface-variant">Anlamı için karta dokun</p>
+          </div>
+
+          <!-- Arka yüz: anlam -->
+          <div class="backface-hidden rotate-y-180 absolute inset-0 flex flex-col items-center justify-center overflow-y-auto rounded-[2rem] bg-primary p-6 text-center text-white shadow-lg sm:p-8">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex h-5 items-center rounded-[5px] bg-white/20 px-1.5 text-[11px] font-semibold tracking-wide">{{ currentCard.level }}</span>
+              <span class="text-xs italic opacity-80">{{ currentCard.category }}</span>
+            </div>
+
+            <p class="mt-4 text-2xl font-semibold">{{ currentCard.back }}</p>
+            <p class="mt-3 max-w-md text-sm italic leading-relaxed opacity-90">“{{ currentCard.example }}”</p>
+
+            <button type="button" (click)="$event.stopPropagation(); listenToPronunciation()"
+                    [attr.aria-label]="currentCard.front + ' kelimesini dinle'"
+                    class="mt-5 flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 text-white transition hover:bg-white/25">
+              <span class="material-symbols-outlined text-[22px]" aria-hidden="true">volume_up</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Toast message -->
-      <div
-        *ngIf="progressMessage"
-        role="status"
-        aria-live="polite"
-        class="fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-2xl border border-primary/20 bg-surface px-4 py-3 text-sm font-semibold text-primary shadow-xl shadow-surface-container-high/40"
-      >
-        <span class="material-symbols-outlined text-xl" aria-hidden="true">info</span>
-        <span class="flex-1">{{ progressMessage }}</span>
-        <button
-          type="button"
-          class="text-on-surface-variant transition hover:text-primary"
-          aria-label="Mesajı kapat"
-          (click)="dismissProgressMessage()"
-        >
-          <span class="material-symbols-outlined text-lg" aria-hidden="true">close</span>
+      <!-- Gezinme: çevir birincil, ileri/geri ikincil -->
+      <div class="mt-5 flex items-center gap-3">
+        <button type="button" (click)="prevCard()" aria-label="Önceki kart" class="flex h-12 w-12 flex-none items-center justify-center rounded-2xl border border-outline-variant/40 bg-surface text-primary transition hover:bg-surface-container">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+        </button>
+        <button type="button" (click)="flipCard()" class="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary-dark">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">flip</span>
+          {{ isFlipped ? 'Kelimeyi göster' : 'Anlamı göster' }}
+        </button>
+        <button type="button" (click)="nextCard()" aria-label="Sonraki kart" class="flex h-12 w-12 flex-none items-center justify-center rounded-2xl border border-outline-variant/40 bg-surface text-primary transition hover:bg-surface-container">
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
         </button>
       </div>
 
-      <!-- Loading state -->
-      <div
-        *ngIf="isLoading"
-        class="rounded-3xl border border-outline-variant/20 bg-surface p-8 text-center shadow-sm"
-      >
-        <div
-          class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary"
-        ></div>
-        <p class="mt-4 text-sm font-semibold text-on-surface-variant">
-          Kartlar yükleniyor...
-        </p>
+      <!-- Kendini değerlendir -->
+      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        <button type="button" (click)="markForReview()" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-tertiary/40 bg-tertiary/5 px-4 text-sm font-semibold text-status-draft transition hover:bg-tertiary/10">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">refresh</span>
+          Tekrar et
+        </button>
+        <button type="button" (click)="markKnown()" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-secondary/40 bg-secondary/10 px-4 text-sm font-semibold text-status-live transition hover:bg-secondary/20">
+          <span class="material-symbols-outlined text-[20px]" [class.is-filled]="currentCard.learned" aria-hidden="true">check_circle</span>
+          Biliyorum
+        </button>
       </div>
 
-      <!-- Error state -->
-      <div
-        *ngIf="!isLoading && loadError"
-        class="rounded-3xl border border-error/30 bg-error-container p-5 text-sm font-semibold text-on-error-container"
-      >
-        {{ loadError }}
+      <div class="mt-4 flex items-center justify-between text-sm text-on-surface-variant">
+        <span>Kart <span class="font-mono">{{ progressLabel }}</span></span>
+        <span *ngIf="reviewCount > 0"><span class="font-mono">{{ reviewCount }}</span> kart tekrara alındı</span>
       </div>
-
-      <!-- Empty state -->
-      <div
-        *ngIf="!isLoading && !loadError && cards.length === 0"
-        class="rounded-3xl border border-outline-variant/20 bg-surface p-8 text-center shadow-sm"
-      >
-        <span class="material-symbols-outlined text-4xl text-outline-variant"
-          >style</span
-        >
-        <h3 class="mt-3 text-lg font-bold">Gösterilecek kart yok</h3>
-        <p class="mt-2 text-sm text-on-surface-variant">
-          Şu anda çalışılacak bir kelime kartı bulunmuyor.
-        </p>
-      </div>
-
-      <!-- Flashcard area -->
-      <ng-container *ngIf="!isLoading && currentCard">
-        <div
-          class="rounded-[2rem] border border-outline-variant/20 bg-surface p-8 shadow-lg shadow-surface-container-low"
-        >
-          <div class="mb-6 text-center">
-            <span
-              class="text-sm uppercase tracking-[0.2em] text-on-surface-variant"
-              >Bilgi Kartı</span
-            >
-            <div class="mx-auto mt-6 w-full max-w-2xl perspective">
-              <div
-                (click)="flipCard()"
-                class="relative mx-auto h-80 cursor-pointer rounded-[2rem] transition-transform duration-500 ease-in-out flip-card-inner sm:h-72"
-                [ngClass]="{ 'rotate-y-180': isFlipped }"
-              >
-                <div
-                  class="absolute inset-0 rounded-[2rem] bg-white p-10 text-center shadow-lg backface-hidden flex flex-col justify-center items-center"
-                >
-                  <p
-                    class="text-sm uppercase tracking-[0.2em] text-on-surface-variant"
-                  >
-                    Ön Yüz
-                  </p>
-                  <h2 class="mt-4 font-serif text-4xl font-semibold text-on-surface">
-                    {{ currentCard.front }}
-                  </h2>
-                  <p class="mt-4 font-mono text-sm text-on-surface-variant">
-                    {{ currentCard.pronunciation }}
-                  </p>
-                </div>
-                <div
-                  class="absolute inset-0 flex flex-col items-center justify-center overflow-y-auto rounded-[2rem] bg-primary p-6 text-center text-white shadow-lg backface-hidden rotate-y-180 sm:p-10"
-                >
-                  <p class="text-sm uppercase tracking-[0.2em] opacity-80">
-                    Arka Yüz
-                  </p>
-                  <p class="mt-4 text-xl font-semibold">
-                    {{ currentCard.back }}
-                  </p>
-                  <p class="mt-4 text-sm leading-6">
-                    {{ currentCard.example }}
-                  </p>
-                  <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    <button
-                      (click)="$event.stopPropagation(); listenToPronunciation()"
-                      [attr.aria-label]="currentCard.front + ' kelimesini dinle'"
-                      class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-container-low"
-                    >
-                      <span class="material-symbols-outlined" aria-hidden="true">volume_up</span>
-                      Dinle
-                    </button>
-                    <button
-                      (click)="$event.stopPropagation(); toggleLearned(currentCard)"
-                      [attr.aria-pressed]="currentCard.learned"
-                      [ngClass]="currentCard.learned ? 'bg-secondary text-white' : 'bg-white text-primary'"
-                      class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition hover:opacity-90"
-                    >
-                      <span class="material-symbols-outlined" aria-hidden="true">{{ currentCard.learned ? 'check_circle' : 'radio_button_unchecked' }}</span>
-                      {{ currentCard.learned ? 'Öğrenildi' : 'Öğrenildi İşaretle' }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 grid gap-3 sm:grid-cols-[1fr_1fr_1fr]">
-            <button
-              (click)="prevCard()"
-              class="rounded-2xl border border-outline-variant/30 bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-primary/5"
-            >
-              Önceki
-            </button>
-            <button
-              (click)="flipCard()"
-              class="rounded-2xl border border-outline-variant/30 bg-white px-6 py-3 text-sm font-bold text-primary transition hover:bg-primary/5"
-            >
-              Kartı Çevir
-            </button>
-            <button
-              (click)="nextCard()"
-              class="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white transition hover:bg-primary-dark"
-            >
-              Sonraki
-            </button>
-          </div>
-        </div>
-      </ng-container>
-    </div>
+    </ng-container>
   </section>
 </div>

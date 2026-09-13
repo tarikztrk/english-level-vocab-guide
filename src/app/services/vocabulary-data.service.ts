@@ -130,6 +130,32 @@ export class VocabularyDataService {
     });
   }
 
+  /**
+   * Word ids the signed-in user touched most recently, newest first — the
+   * "kaldığın yer" signal the home screen reads. Empty for signed-out visitors.
+   */
+  async getRecentlyStudiedWordIds(limit = 6): Promise<number[]> {
+    await this.authService.waitUntilInitialized();
+
+    const userId = this.authService.currentUser?.id;
+    if (!userId) {
+      return [];
+    }
+
+    const { data, error } = await this.supabaseService.client
+      .from('user_progress')
+      .select('word_id, updated_at')
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map((row: any) => Number(row.word_id));
+  }
+
   /** Admin-only: every word regardless of status, for the management table. */
   async getWordsForAdmin(): Promise<VocabularyWord[]> {
     const { data, error } = await this.supabaseService.client

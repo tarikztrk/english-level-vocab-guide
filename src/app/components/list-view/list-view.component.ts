@@ -3,19 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthenticationRequiredError, VocabularyDataService, VocabularyWord } from '../../services/vocabulary-data.service';
 import { PronunciationService } from '../../services/pronunciation.service';
 import { levelBadgeStyle } from '../../shared/level-badge';
+import { normalizeForSearch } from '../../shared/text';
+import { CEFR_LEVELS, levelTitle } from '../../shared/levels';
 
 const SEARCH_DEBOUNCE_MS = 250;
-
-/**
- * Folds the four Turkish i-letters onto a single "i" before lowercasing.
- * Plain toLowerCase() turns "İ" into "i̇" (i + combining dot), so a search for
- * "inatçı" would never match the meaning "İnatçı"; toLocaleLowerCase('tr') fixes
- * that but breaks English words ("Inherent" becomes "ınherent"). Searching a
- * bilingual list has to be forgiving in both directions.
- */
-function normalizeForSearch(value: string): string {
-  return value.replace(/[İIı]/g, 'i').toLowerCase();
-}
 
 @Component({
   selector: 'app-list-view',
@@ -33,16 +24,7 @@ export class ListViewComponent implements OnInit {
   ) {}
 
   search = '';
-  levels: string[] = ['Tümü', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-  /** CEFR codes with their Turkish descriptors, used by the level rail and the page title. */
-  readonly levelMeta = [
-    { code: 'A1', name: 'Başlangıç' },
-    { code: 'A2', name: 'Temel' },
-    { code: 'B1', name: 'Orta' },
-    { code: 'B2', name: 'Üst orta' },
-    { code: 'C1', name: 'İleri' },
-    { code: 'C2', name: 'Yetkin' }
-  ];
+  levels: string[] = ['Tümü', ...CEFR_LEVELS];
   levelCounts: Record<string, number> = {};
   selectedLevel = 'Tümü';
   selectedCategory = 'Tümü';
@@ -144,8 +126,7 @@ export class ListViewComponent implements OnInit {
   }
 
   get activeLevelTitle(): string {
-    const meta = this.levelMeta.find((level) => level.code === this.selectedLevel);
-    return meta ? `${meta.code} · ${meta.name}` : 'Tüm seviyeler';
+    return this.selectedLevel === 'Tümü' ? 'Tüm seviyeler' : levelTitle(this.selectedLevel);
   }
 
   get paginatedWords(): VocabularyWord[] {
@@ -273,6 +254,22 @@ export class ListViewComponent implements OnInit {
     this.currentPage = 1;
     this.onFilterChange();
     this.writeStateToUrl();
+  }
+
+  /**
+   * Hands the current filter set to the flashcard deck, so "study this list"
+   * means the list actually on screen rather than the whole vocabulary.
+   */
+  studyFilteredDeck() {
+    void this.router.navigate(['/flashcards'], {
+      queryParams: {
+        level: this.selectedLevel === 'Tümü' ? null : this.selectedLevel,
+        category: this.selectedCategory === 'Tümü' ? null : this.selectedCategory,
+        status: this.selectedStatus === 'all' ? null : this.selectedStatus,
+        q: this.search.trim() === '' ? null : this.search.trim(),
+        bookmarked: this.showBookmarkedOnly ? '1' : null
+      }
+    });
   }
 
   /** Clears filters and surfaces the words that are still unlearned. */

@@ -52,7 +52,7 @@ export class AuthComponent {
     try {
       if (this.mode === 'signIn') {
         await this.authService.signIn(this.email.trim(), this.password);
-        await this.router.navigate(['/']);
+        await this.router.navigate([await this.landingRoute()]);
         return;
       }
 
@@ -69,5 +69,10 @@ export class AuthComponent {
     } finally {
       this.loading = false;
     }
+  }
+
+  /** Editors land in the admin panel; learners land on the home screen. */
+  private async landingRoute(): Promise<string> {
+    return (await this.authService.isAdmin()) ? '/admin/dashboard' : '/';
   }
 }

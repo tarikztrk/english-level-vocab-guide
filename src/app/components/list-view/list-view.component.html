@@ -32,9 +32,9 @@
             <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
           </select>
         </label>
-        <button routerLink="/flashcards" class="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark">
+        <button type="button" (click)="studyFilteredDeck()" [disabled]="filteredWords.length === 0" class="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">view_carousel</span>
-          Kartlarla çalış
+          Bu listeyi kartlarla çalış
         </button>
         <button type="button" (click)="exportList()" [disabled]="filteredWords.length === 0" class="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-outline-variant/40 bg-surface px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50">
           <span class="material-symbols-outlined text-[20px]" aria-hidden="true">download</span>
