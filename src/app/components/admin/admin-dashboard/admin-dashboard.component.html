@@ -74,8 +74,12 @@
         </div>
 
         <div class="mt-md flex h-72 items-end gap-sm rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
-          <div *ngFor="let point of stats.dailyActive" class="flex flex-1 flex-col items-center gap-xs">
-            <div class="w-full rounded-t-xl bg-primary-fixed-dim" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' aktif kullanıcı'"></div>
+          <!-- The bar's percentage height only resolves if every ancestor up to the
+               fixed-height plot area has a definite height, hence h-full + flex-1. -->
+          <div *ngFor="let point of stats.dailyActive" class="flex h-full flex-1 flex-col items-center gap-xs">
+            <div class="flex w-full flex-1 items-end">
+              <div class="w-full rounded-t-xl bg-primary-fixed-dim" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' aktif kullanıcı'"></div>
+            </div>
             <span class="font-label-caps text-label-caps text-on-surface-variant">{{ formatDay(point.date) }}</span>
           </div>
         </div>

@@ -46,8 +46,12 @@
         <h2 class="font-headline-sm text-headline-sm text-on-surface">Günlük Aktif Kullanıcı</h2>
         <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Son 7 günde her gün ilerleme kaydeden farklı kullanıcı sayısı.</p>
         <div class="mt-md flex h-72 items-end gap-xs rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
-          <div *ngFor="let point of stats.dailyActive" class="flex flex-1 flex-col items-center gap-xs">
-            <div class="w-full rounded-t-xl bg-primary" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' aktif kullanıcı'"></div>
+          <!-- The bar's percentage height only resolves if every ancestor up to the
+               fixed-height plot area has a definite height, hence h-full + flex-1. -->
+          <div *ngFor="let point of stats.dailyActive" class="flex h-full flex-1 flex-col items-center gap-xs">
+            <div class="flex w-full flex-1 items-end">
+              <div class="w-full rounded-t-xl bg-primary" [style.height.%]="(point.count / maxDailyActive) * 100" [title]="point.count + ' aktif kullanıcı'"></div>
+            </div>
             <span class="font-label-caps text-label-caps text-on-surface-variant">{{ formatDay(point.date) }}</span>
           </div>
         </div>
@@ -69,30 +73,80 @@
     <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
       <div class="flex flex-col justify-between gap-sm sm:flex-row sm:items-center">
         <div>
-          <h2 class="font-headline-sm text-headline-sm text-on-surface">En Başarılı Kullanıcılar</h2>
-          <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Öğrenilen kelime sayısına göre sıralama.</p>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Yeni Kayıtlar</h2>
+          <p class="mt-xs font-body-md text-body-md text-on-surface-variant">Son 8 haftada haftalık yeni hesap sayısı.</p>
         </div>
-        <button type="button" [disabled]="stats.topLearners.length === 0" (click)="exportTopLearners()" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
-          Dışa Aktar
-        </button>
+        <p class="font-label-caps text-label-caps text-on-surface-variant">Bu dönemde {{ totalSignupsInWindow }} kayıt</p>
       </div>
 
-      <div class="mt-md divide-y divide-outline-variant">
-        <div *ngFor="let learner of stats.topLearners" class="flex flex-col justify-between gap-sm py-sm sm:flex-row sm:items-center">
-          <div class="flex items-center gap-sm">
-            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-fixed font-headline-sm text-headline-sm text-on-primary-fixed">{{ initials(learner.email) }}</div>
-            <div>
-              <p class="font-body-md text-body-md font-semibold text-on-surface">{{ learner.email }}</p>
-              <p class="font-label-caps text-label-caps text-on-surface-variant">{{ learner.learnedCount }} kelime öğrenildi</p>
-            </div>
+      <div class="mt-md flex h-56 items-end gap-xs rounded-2xl border border-outline-variant bg-surface-container-lowest p-md">
+        <div *ngFor="let point of stats.signups" class="flex h-full flex-1 flex-col items-center gap-xs">
+          <div class="flex w-full flex-1 items-end">
+            <div class="w-full rounded-t-xl bg-secondary" [style.height.%]="(point.count / maxSignups) * 100" [title]="point.count + ' yeni kayıt'"></div>
           </div>
-          <div class="w-full sm:w-40">
-            <div class="mb-1 flex justify-between font-label-caps text-label-caps"><span class="text-on-surface-variant">Ustalık</span><span class="text-secondary">{{ learner.masteryPercent }}%</span></div>
-            <div class="h-2 overflow-hidden rounded-full bg-surface-variant"><div class="h-full rounded-full bg-secondary" [style.width.%]="learner.masteryPercent"></div></div>
-          </div>
+          <span class="font-label-caps text-label-caps text-on-surface-variant">{{ formatWeek(point.weekStart) }}</span>
         </div>
+      </div>
+    </section>
 
-        <p *ngIf="stats.topLearners.length === 0" class="py-sm font-body-md text-body-md text-on-surface-variant">Henüz kullanıcı ilerlemesi kaydedilmemiş.</p>
+    <section class="rounded-2xl border border-outline-variant bg-surface p-md shadow-[0_8px_24px_rgba(21,28,39,0.04)]">
+      <div class="flex flex-col justify-between gap-sm sm:flex-row sm:items-center">
+        <div>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface">Öğrenciler</h2>
+          <p class="mt-xs font-body-md text-body-md text-on-surface-variant">
+            {{ stats.students.length }} kayıtlı öğrenci ·
+            <span [class.text-error]="dormantStudents.length > 0">{{ dormantStudents.length }} kişi bir haftadır sessiz</span>
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-xs">
+          <button type="button" *ngFor="let option of sortOptions"
+                  (click)="setSort(option.key)" [attr.aria-pressed]="sortKey === option.key"
+                  [ngClass]="sortKey === option.key ? 'bg-primary text-on-primary' : 'border border-outline-variant text-on-surface-variant hover:bg-surface-container'"
+                  class="rounded-xl px-sm py-xs font-label-caps text-label-caps uppercase transition">
+            {{ option.label }}
+          </button>
+          <button type="button" [disabled]="stats.students.length === 0" (click)="exportStudents()" class="rounded-xl bg-primary px-sm py-xs font-label-caps text-label-caps uppercase text-on-primary transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50">
+            Dışa Aktar
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-md overflow-x-auto">
+        <table class="w-full min-w-[640px] border-collapse text-left">
+          <thead>
+            <tr class="border-b border-outline-variant">
+              <th class="pb-sm font-label-caps text-label-caps uppercase text-on-surface-variant">Öğrenci</th>
+              <th class="pb-sm font-label-caps text-label-caps uppercase text-on-surface-variant">Öğrenilen</th>
+              <th class="pb-sm font-label-caps text-label-caps uppercase text-on-surface-variant">Ustalık</th>
+              <th class="pb-sm font-label-caps text-label-caps uppercase text-on-surface-variant">Son aktiflik</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant">
+            <tr *ngFor="let student of sortedStudents">
+              <td class="py-sm">
+                <div class="flex items-center gap-sm">
+                  <div class="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-primary-fixed font-label-caps text-label-caps text-on-primary-fixed">{{ initials(student.email) }}</div>
+                  <span class="font-body-md text-body-md text-on-surface">{{ student.email }}</span>
+                </div>
+              </td>
+              <td class="py-sm font-body-md text-body-md text-on-surface">{{ student.learnedCount }}</td>
+              <td class="py-sm">
+                <div class="flex items-center gap-sm">
+                  <div class="h-2 w-24 overflow-hidden rounded-full bg-surface-variant"><div class="h-full rounded-full bg-secondary" [style.width.%]="student.masteryPercent"></div></div>
+                  <span class="font-label-caps text-label-caps text-on-surface-variant">{{ student.masteryPercent }}%</span>
+                </div>
+              </td>
+              <td class="py-sm">
+                <span class="font-body-md text-body-md"
+                      [ngClass]="student.daysSinceActive === null || student.daysSinceActive >= 7 ? 'text-error' : 'text-on-surface-variant'">
+                  {{ formatLastActive(student) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p *ngIf="stats.students.length === 0" class="py-sm font-body-md text-body-md text-on-surface-variant">Henüz kayıtlı öğrenci yok.</p>
       </div>
     </section>
   </ng-container>
